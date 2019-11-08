@@ -20,12 +20,12 @@ class JoyMap():
         #self.AXIS_LINEAR = rospy.get_param('~axis_linear', 1)
         #self.AXIS_ANGULAR = rospy.get_param('~axis_angular', 1)
         # If RT or LT is pressed more than 50%, it means it is pressed
-        self.PRESSED_THRESHOLD = rospy.get_param('~pressed_threshold', 0.5)
+        self.PRESSED_THRESHOLD = rospy.get_param('~pressed_threshold', 0.9)
         rospy.init_node('JoyMap', anonymous=True)
 
         # Publish the drone movements
-        #self.pub_mov = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=50)
-        self.pub_mov = rospy.Publisher('/target_vel', Twist, queue_size=50)
+        self.pub_mov = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=50)
+        #self.pub_mov = rospy.Publisher('/target_vel', Twist, queue_size=50)
         self.pub_land = rospy.Publisher('/bebop/land', Empty, queue_size=0)
         self.pub_takeoff = rospy.Publisher('/bebop/takeoff', Empty, queue_size=0)
 
@@ -72,11 +72,11 @@ class JoyMap():
 
     def take_off(self):
         print("TAKE OFF")
-        #self.pub_takeoff.publish(Empty())
+        self.pub_takeoff.publish(Empty())
 
     def land(self):
         print("LAND")
-        #self.pub_land.publish(Empty())
+        self.pub_land.publish(Empty())
 
     def publishMappedVelocities(self, data):
         """
@@ -91,6 +91,11 @@ class JoyMap():
 
         # Land / Take-Off
         assert self.RT is not None
+        assert self.A is not None
+
+        if self.A == 1:
+            self.land()
+            return
 
         if self.RT >= self.PRESSED_THRESHOLD:
             if self.last_command != 'take_off':
