@@ -4,27 +4,24 @@ import rospy
 
 # import the message type you need (here are examples)
 from std_msgs.msg import Float32, Empty
-from nav_msgs.msg import Odometry
-from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist
 
 # If you need to protect a variable by a mutex...
 from multiprocessing import Lock
 
-# Then, as usual
-import numpy as np
-
-# And for image processing
-import cv2
 
 
 class SpeedController:
 
     def __init__(self):  # We are in thread #1 here.
 
+        self.max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 0)
+        self.max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 0)
+
         self.frequency = 10
 
-        self.speed = Twist()
+        self.commanded_speed = Twist()
+        self.normalized_speed = Twist()
         self.speed_mutex = Lock()  # ... thanks to this mutex.
 
         self.sub_linear_x = rospy.Subscriber("linear_x", Float32,
@@ -43,30 +40,33 @@ class SpeedController:
         self.pub_speed = rospy.Publisher('/target_vel', Twist, queue_size=10)
 
     def publish_speed(self):
-        self.pub_speed.publish(self.speed)
+        self.pub_speed.publish(self.normalized_speed)
 
     def update_linear_x(self, value):
-        with self.data_mutex:
-            self.speed.linear.x = value.data
-        self.publish_speed()
+        with self.speed_mutex:
+            self.commanded_speed.linear.x = value.data
 
     def update_linear_y(self, value):
-        with self.data_mutex:
-            self.speed.linear.y = value.data
-        self.publish_speed()
+        with self.speed_mutex:
+            self.commanded_speed.linear.y = value.data
 
     def update_linear_z(self, value):
-        with self.data_mutex:
-            self.speed.linear.z = value.data
-        self.publish_speed()
+        with self.speed_mutex:
+            self.commanded_speed.linear.z = value.data
 
     def update_angular_z(self, value):
-        with self.data_mutex:
-            self.speed.angular.z = value.data
-        self.publish_speed()
+        with self.speed_mutex:
+            self.commanded_speed.angular.z = value.data
 
     def loop(self):
         while not rospy.is_shutdown():
+            with self.speed_mutex:
+                #self.normalized_speed.linear.x = self.commanded_speed.linear.x / self.max_vertical_speed
+                #self.normalized_speed.linear.y = self.commanded_speed.linear.y / self.max_vertical_speed
+                self.normalized_speed.linear.z = self.commanded_speed.linear.z / self.max_vertical_speed
+                self.normalized_speed.angular.z = self.commanded_speed.angular.z / self.max_rotation_speed
+                self.publish_speed()
+
             rospy.sleep(1/self.frequency)  # we sleep for 100ms
 
 

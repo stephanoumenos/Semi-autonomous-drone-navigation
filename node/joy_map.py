@@ -3,7 +3,7 @@
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Empty
+from std_msgs.msg import Empty, Float32
 
 
 # Expected input sizes
@@ -19,12 +19,17 @@ class JoyMap():
         self.BRAKE_BUTTON = rospy.get_param('~brake_button', 0)
         #self.AXIS_LINEAR = rospy.get_param('~axis_linear', 1)
         #self.AXIS_ANGULAR = rospy.get_param('~axis_angular', 1)
+        self.max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 0)
+        self.max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 0)
         # If RT or LT is pressed more than 50%, it means it is pressed
         self.PRESSED_THRESHOLD = rospy.get_param('~pressed_threshold', 0.9)
         rospy.init_node('JoyMap', anonymous=True)
 
         # Publish the drone movements
-        self.pub_mov = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=50)
+        #self.pub_linear_x = rospy.Publisher('/linear_x', Float32, queue_size=50)
+        #self.pub_linear_y = rospy.Publisher('/linear_y', Float32, queue_size=50)
+        self.pub_linear_z = rospy.Publisher('/linear_z', Float32, queue_size=50)
+        self.pub_angular_z = rospy.Publisher('/angular_z', Float32, queue_size=50)
         #self.pub_mov = rospy.Publisher('/target_vel', Twist, queue_size=50)
         self.pub_land = rospy.Publisher('/bebop/land', Empty, queue_size=0)
         self.pub_takeoff = rospy.Publisher('/bebop/takeoff', Empty, queue_size=0)
@@ -113,17 +118,18 @@ class JoyMap():
                 self.right_stick_horizontal is not None and
                 self.right_stick_vertical is not None)
 
-        vel_msg = Twist()
         # Translate forward / back
-        vel_msg.linear.x = self.left_stick_vertical
+        #vel_msg.linear.x = self.left_stick_vertical
         # Translate left / right
-        vel_msg.linear.y = self.left_stick_horizontal
+        #vel_msg.linear.y = self.left_stick_horizontal
         # Ascend / descend
-        vel_msg.linear.z = self.right_stick_vertical
+        self.pub_linear_z.publish(self.right_stick_vertical * self.max_vertical_speed)
+        #vel_msg.linear.z = self.right_stick_vertical
         # Rotate
-        vel_msg.angular.z = self.right_stick_horizontal
-        print(vel_msg)
-        self.pub_mov.publish(vel_msg)
+        self.pub_angular_z.publish(self.right_stick_horizontal * self.max_rotation_speed)
+        #vel_msg.angular.z = self.right_stick_horizontal
+        #print(vel_msg)
+        #self.pub_mov.publish(vel_msg)
 
 
     def Spin(self):

@@ -18,5 +18,8 @@
     <node pkg="st5drone" name="joy_map" type="joy_map.py">
     </node>
 
+    <node pkg="st5drone" name="speed_controller" type="speed_controller.py">
+    </node>
+
     <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>
