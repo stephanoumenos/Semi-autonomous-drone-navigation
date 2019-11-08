@@ -1,0 +1,28 @@
+<!-- adapted from st5_generic launch files-->
+<launch>
+    <arg name="joy_dev" default="/dev/input/js0"/>
+
+    <!-- Joystick driver -->
+    <node pkg="joy" type="joy_node" name="joy_node">
+        <param name="dev" value="$(arg joy_dev)"/>
+        <param name="deadzone" value="0.1"/>
+        <param name="autorepeat_rate" value="20"/>
+    </node>
+
+    <!-- joy to twist conversion -->
+    <!--node pkg="our_joy" name="joy_map" type="joy_map.py" output="screen">
+        <param name="axis_linear" value="1"/>
+        <param name="scale_linear" value="0.26"/>
+        <param name="axis_angular" value="1"/>
+        <param name="scale_angular" value="1.82"/>
+        <param name="brake_button" value="0"/>
+    </node> -->
+
+    <node pkg="teleop_twist_joy" type="teleop_node" name="teleop">
+    <remap from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+        <param name="scale_linear" value="0.35"/>
+        <param name="scale_angular" value="1.5"/>
+    </node>
+
+
+</launch>
