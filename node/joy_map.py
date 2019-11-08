@@ -65,7 +65,7 @@ class JoyMap():
         self.A = buttonArray[self.BRAKE_BUTTON]
 
         # Left Stick
-        self.left_stick_horizontal = self.invertStick(axesArray[0])
+        self.left_stick_horizontal = axesArray[0]
         self.left_stick_vertical = axesArray[1]
         self.right_stick_horizontal = self.invertStick(axesArray[3])
         self.right_stick_vertical = axesArray[4]
