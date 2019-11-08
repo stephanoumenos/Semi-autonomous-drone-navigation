@@ -1,6 +1,9 @@
 <launch>
-    <arg name = "droneIP" default="192.168.50.61"/>
+    <arg name="droneIP" default="192.168.50.61"/>
     <arg name="droneDNS" default="pbebop2.smart.metz.supelec.fr"/>
 
-    <node name="twist2pic" pkg="st5drone" type="twist2pic.py"/> 
+    <node name="twist2pic" pkg="st5drone" type="twist2pic.py"/>
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view" args="/image_out/compressed"/>
+
+    <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>
