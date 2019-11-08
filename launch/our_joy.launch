@@ -10,19 +10,7 @@
     </node>
 
     <!-- joy to twist conversion -->
-    <!--node pkg="our_joy" name="joy_map" type="joy_map.py" output="screen">
-        <param name="axis_linear" value="1"/>
-        <param name="scale_linear" value="0.26"/>
-        <param name="axis_angular" value="1"/>
-        <param name="scale_angular" value="1.82"/>
-        <param name="brake_button" value="0"/>
-    </node> -->
-
-    <node pkg="teleop_twist_joy" type="teleop_node" name="teleop">
-    <remap from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
-        <param name="scale_linear" value="0.35"/>
-        <param name="scale_angular" value="1.5"/>
+    <node pkg="st5drone" name="joy_map" type="joy_map.py">
     </node>
-
 
 </launch>
