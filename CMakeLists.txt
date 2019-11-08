@@ -8,10 +8,7 @@ project(st5drone)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  bebop_description
-  bebop_driver
-  bebop_msgs
-  bebop_tools
+
 )
 
 ## System dependencies are found with CMake's conventions

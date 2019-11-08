@@ -18,11 +18,5 @@
         <param name="brake_button" value="0"/>
     </node> -->
 
-    <node pkg="teleop_twist_joy" type="teleop_node" name="teleop">
-    <remap from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
-        <param name="scale_linear" value="0.35"/>
-        <param name="scale_angular" value="1.5"/>
-    </node>
-
 
 </launch>
