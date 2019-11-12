@@ -1,0 +1,13 @@
+<launch>
+	<arg name="ip" default="none" doc="The IP of your drone"/>
+
+	<!--Launch the bebop driver -->
+	<!-- <include file="$(find bebop_driver)/launch/bebop_node.launch"> -->
+	<!-- 	<arg name="ip" value="$(arg ip)"/> -->
+	<!-- </include> -->	
+
+	<node pkg="st5drone" type="b1.py" name="behavior_1" output="screen"/>
+	<node pkg="st5drone" type="b2.py" name="behavior_2" output="screen"/>
+	<node pkg="st5drone" type="status_viewer.py" name="status_viewer" output="screen"/>
+
+</launch>

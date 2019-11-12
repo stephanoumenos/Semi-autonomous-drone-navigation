@@ -1,0 +1,3 @@
+<launch>
+    <node name="behavior" pkg="st5drone" type="behavior.py" output="screen"/>
+</launch>
