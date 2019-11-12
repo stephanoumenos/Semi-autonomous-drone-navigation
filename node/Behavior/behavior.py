@@ -57,8 +57,8 @@ class Behavior:
             message = BehaviorStatus()
             message.behavior_name = self.name
             message.active = self.active
-            print(message)
-            self.publisher.publish()
+            
+            self.publisher.publish(message)
 
 
 if __name__ == '__main__':     # This is the main thread, thread #1
@@ -70,3 +70,4 @@ if __name__ == '__main__':     # This is the main thread, thread #1
                  # no idle job (i.e. loop) to do outside event
                  # handling, rospy.spin() is mandatory in order to
                  # prevent from immediate termination of your node.
+
