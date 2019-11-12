@@ -50,15 +50,27 @@ class Behavior:
     def behavior_callback(self, msg):
 
         if msg.behavior_name == self.name:
+
             with self.active_mutex :
+                previous_status = self.active
                 self.active = msg.active
-                #print(self.name + ": Active is now TRUE for me")
+            
+            if previous_status = False and msg.active == True:
+                self.on_status_on()
+            elif previous_status = True and msg.active == False:
+                self.on_status_off()
+
         elif msg.behavior_name == "ping":
             message = BehaviorStatus()
             message.behavior_name = self.name
             message.active = self.active
             
             self.publisher.publish(message)
+    
+    def on_status_on(self):
+        pass    
+    def on_status_off(self):
+        pass
 
 
 if __name__ == '__main__':     # This is the main thread, thread #1
