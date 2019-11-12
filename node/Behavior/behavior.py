@@ -15,7 +15,7 @@ import numpy as np
 import cv2
 
 
-class Behavior:
+class Behavior(object):
 
     def __init__(self, behavior_name) : # We are in thread #1 here.
 
