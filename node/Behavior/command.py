@@ -34,7 +34,6 @@ class Command:
         event_queue = sched.scheduler(time.time, time.sleep)
         for call in self.commands[msg]:
             # print("Requested call " + call[1] + "for a time " + str(call[0])   )  
-            # print(call[1])
            
             event_queue.enter(call[0], 0, self.contact_behavior, (call[1],) )
 

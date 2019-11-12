@@ -55,9 +55,9 @@ class Behavior:
                 previous_status = self.active
                 self.active = msg.active
             
-            if previous_status = False and msg.active == True:
+            if previous_status == False and msg.active == True:
                 self.on_status_on()
-            elif previous_status = True and msg.active == False:
+            elif previous_status == True and msg.active == False:
                 self.on_status_off()
 
         elif msg.behavior_name == "ping":
@@ -68,7 +68,7 @@ class Behavior:
             self.publisher.publish(message)
     
     def on_status_on(self):
-        pass    
+        pass
     def on_status_off(self):
         pass
 
