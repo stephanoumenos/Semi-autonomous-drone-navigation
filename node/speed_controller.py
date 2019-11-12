@@ -49,9 +49,10 @@ class SpeedController:
         # Controller
 
         self.gains = {
-            "linear_x": {'Kp': 1.0, 'Kd': 0.0, 'Ki': 0.0},
-            "linear_y": {'Kp': 1.0, 'Kd': 0.0, 'Ki': 0.0}
+            "linear_x": {'Tu' : 1.65, 'Ku' : 1.6, 'Kp': 0.0, 'Kd': 0.0, 'Ki': 0.0},
+            "linear_y": {'Tu' : 1.6, 'Ku' : 1.6, 'Kp': 0.0, 'Kd': 0.0, 'Ki': 0.0}
         }
+        self.pi_controller()
 
         self.errors_last_update = 0
 
@@ -59,6 +60,45 @@ class SpeedController:
             "linear_x": {'error': 0.0, 'D_error': 0.0, 'I_error': 0.0, 'time': rospy.Time.now()},
             "linear_y": {'error': 0.0, 'D_error': 0.0, 'I_error': 0.0, 'time': rospy.Time.now()}
         }
+
+
+    def some_overshoot(self):
+        self.gains['linear_x']['Kp']=self.gains['linear_x']['Ku']/3
+        self.gains['linear_x']['Kd']=self.gains['linear_x']['Ku']*self.gains['linear_x']['Tu']/9
+        self.gains['linear_x']['Ki']=0.666*self.gains['linear_x']['Ku']/self.gains['linear_x']['Tu']
+
+        self.gains['linear_y']['Kp']=self.gains['linear_y']['Ku']/3
+        self.gains['linear_y']['Kd']=self.gains['linear_y']['Ku']*self.gains['linear_y']['Tu']/9
+        self.gains['linear_y']['Ki']=0.666*self.gains['linear_y']['Ku']/self.gains['linear_y']['Tu']
+
+
+    def pi_controller(self):
+        self.gains['linear_x']['Kp']=0.45*self.gains['linear_x']['Ku']
+        self.gains['linear_x']['Kd']=0
+        self.gains['linear_x']['Ki']=0.54*self.gains['linear_x']['Ku']/self.gains['linear_x']['Tu']
+        self.gains['linear_y']['Kp']=0.45*self.gains['linear_y']['Ku']
+        self.gains['linear_y']['Kd']=0
+        self.gains['linear_y']['Ki']=0.54*self.gains['linear_y']['Ku']/self.gains['linear_y']['Tu']
+
+
+    def pid_classic(self):
+        self.gains['linear_x']['Kp']=0.6*self.gains['linear_x']['Ku']
+        self.gains['linear_x']['Kd']=3*self.gains['linear_x']['Ku']*self.gains['linear_x']['Tu']/40
+        self.gains['linear_x']['Ki']=1.2*self.gains['linear_x']['Ku']/self.gains['linear_x']['Tu']
+
+        self.gains['linear_y']['Kp']=0.6*self.gains['linear_y']['Ku']
+        self.gains['linear_y']['Kd']=3*self.gains['linear_y']['Ku']*self.gains['linear_y']['Tu']/40
+        self.gains['linear_y']['Ki']=1.2*self.gains['linear_y']['Ku']/self.gains['linear_y']['Tu']
+
+
+    def no_overshoot(self):
+        self.gains['linear_x']['Kp']=self.gains['linear_x']['Ku']/5
+        self.gains['linear_x']['Kd']=self.gains['linear_x']['Ku']*self.gains['linear_x']['Tu']/15
+        self.gains['linear_x']['Ki']=2/5*self.gains['linear_x']['Ku']/self.gains['linear_x']['Tu']
+
+        self.gains['linear_y']['Kp']=self.gains['linear_y']['Ku']/5
+        self.gains['linear_y']['Kd']=self.gains['linear_y']['Ku']*self.gains['linear_y']['Tu']/15
+        self.gains['linear_y']['Ki']=2/5*self.gains['linear_y']['Ku']/self.gains['linear_y']['Tu']
 
     def publish_speed(self):
         self.pub_speed.publish(self.normalized_speed)
@@ -87,8 +127,8 @@ class SpeedController:
                 self.errors_last_update = self.errors['linear_x']['time']
 
             with self.speed_mutex:
-                self.normalized_speed.linear.x = self.gains['linear_x']['Kp']*self.errors['linear_x']['error'] / self.max_vertical_speed
-                self.normalized_speed.linear.y = self.gains['linear_y']['Kp']*self.errors['linear_y']['error'] / self.max_vertical_speed
+                self.normalized_speed.linear.x = (self.gains['linear_x']['Kp']*self.errors['linear_x']['error'] + self.gains['linear_x']['Kd']*self.errors['linear_x']['D_error'] + self.gains['linear_x']['Ki']*self.errors['linear_x']['I_error'] ) / self.max_vertical_speed
+                self.normalized_speed.linear.y = (self.gains['linear_y']['Kp']*self.errors['linear_y']['error'] + self.gains['linear_y']['Kd']*self.errors['linear_y']['D_error'] + self.gains['linear_y']['Ki']*self.errors['linear_y']['I_error'] ) / self.max_vertical_speed
                 self.normalized_speed.linear.z = self.commanded_speed.linear.z / self.max_vertical_speed
                 self.normalized_speed.angular.z = self.commanded_speed.angular.z / self.max_rotation_speed
                 self.publish_speed()
@@ -104,18 +144,18 @@ class SpeedController:
         now = self.odom.header.stamp
         self.errors['linear_x']['error'] = self.commanded_speed.linear.x - self.odom.twist.twist.linear.x
         self.errors['linear_x']['D_error'] = (self.errors['linear_x']['error'] - last_errors['linear_x']['error']) \
-                                             / (now - last_errors['linear_x']['time'])
+                                             / (now - last_errors['linear_x']['time']).to_sec()
         self.errors['linear_x']['I_error'] = self.errors['linear_x']['I_error'] + \
                                              (self.errors['linear_x']['error'] + last_errors['linear_x']['error']) * \
-                                             (now - last_errors['linear_x']['time']) / 2
+                                             (now - last_errors['linear_x']['time']).to_sec() / 2
         self.errors['linear_x']['time'] = now
 
         self.errors['linear_y']['error'] = self.commanded_speed.linear.y - self.odom.twist.twist.linear.y
         self.errors['linear_y']['D_error'] = (self.errors['linear_y']['error'] - last_errors['linear_y']['error']) \
-                                             / (now - last_errors['linear_y']['time'])
+                                             / (now - last_errors['linear_y']['time']).to_sec()
         self.errors['linear_y']['I_error'] = self.errors['linear_y']['I_error'] + \
                                              (self.errors['linear_y']['error'] + last_errors['linear_y']['error']) * \
-                                             (now - last_errors['linear_y']['time']) / 2
+                                             (now - last_errors['linear_y']['time']).to_sec() / 2
         self.errors['linear_y']['time'] = now
 
 
