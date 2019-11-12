@@ -15,8 +15,9 @@ class SpeedController:
 
     def __init__(self):  # We are in thread #1 here.
 
-        self.max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 0)
-        self.max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 0)
+        rospy.init_node('speed_controller')
+        self.max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 1)
+        self.max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 100)
 
         self.frequency = 10
 
@@ -37,7 +38,7 @@ class SpeedController:
                                               self.update_angular_z,
                                               queue_size=10)
 
-        self.pub_speed = rospy.Publisher('/target_vel', Twist, queue_size=10)
+        self.pub_speed = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=10)
 
     def publish_speed(self):
         self.pub_speed.publish(self.normalized_speed)
@@ -71,9 +72,9 @@ class SpeedController:
 
 
 if __name__ == '__main__':
-    rospy.init_node('speed_controller')
     my_node = SpeedController()
-    rospy.spin()  # useless... since loop already blocks. If you have
+    my_node.loop()
+    #rospy.spin()  # useless... since loop already blocks. If you have
     # no idle job (i.e. loop) to do outside event
     # handling, rospy.spin() is mandatory in order to
     # prevent from immediate termination of your node.

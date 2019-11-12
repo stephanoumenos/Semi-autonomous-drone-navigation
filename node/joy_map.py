@@ -19,8 +19,8 @@ class JoyMap():
         self.BRAKE_BUTTON = rospy.get_param('~brake_button', 0)
         #self.AXIS_LINEAR = rospy.get_param('~axis_linear', 1)
         #self.AXIS_ANGULAR = rospy.get_param('~axis_angular', 1)
-        self.max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 0)
-        self.max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 0)
+        self.max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 1)
+        self.max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 100)
         # If RT or LT is pressed more than 50%, it means it is pressed
         self.PRESSED_THRESHOLD = rospy.get_param('~pressed_threshold', 0.9)
         rospy.init_node('JoyMap', anonymous=True)
