@@ -48,7 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  behavior.msg
+  BehaviorStatus.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -203,3 +203,5 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+        
