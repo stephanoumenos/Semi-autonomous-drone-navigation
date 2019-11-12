@@ -1,3 +1,13 @@
 <launch>
+    <node pkg="joy" type="joy_node" name="joy_node"/>
+    <node pkg="st5drone" type="joy_teleop.py" name="joy_teleop"/>
+    
+    <node pkg="st5drone" type="status_viewer.py" name="status_viewer" output="screen"/>
+
     <node name="behavior" pkg="st5drone" type="behavior.py" output="screen"/>
+
+    <node name="command" pkg="st5drone" type="command.py" output="screen"/>
+
+
+
 </launch>
