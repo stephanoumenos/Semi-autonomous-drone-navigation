@@ -26,8 +26,8 @@ class JoyMap():
         rospy.init_node('JoyMap', anonymous=True)
 
         # Publish the drone movements
-        #self.pub_linear_x = rospy.Publisher('/linear_x', Float32, queue_size=50)
-        #self.pub_linear_y = rospy.Publisher('/linear_y', Float32, queue_size=50)
+        self.pub_linear_x = rospy.Publisher('/linear_x', Float32, queue_size=50)
+        self.pub_linear_y = rospy.Publisher('/linear_y', Float32, queue_size=50)
         self.pub_linear_z = rospy.Publisher('/linear_z', Float32, queue_size=50)
         self.pub_angular_z = rospy.Publisher('/angular_z', Float32, queue_size=50)
         #self.pub_mov = rospy.Publisher('/target_vel', Twist, queue_size=50)
@@ -119,17 +119,13 @@ class JoyMap():
                 self.right_stick_vertical is not None)
 
         # Translate forward / back
-        #vel_msg.linear.x = self.left_stick_vertical
+        self.pub_linear_x.publish(self.left_stick_vertical)
         # Translate left / right
-        #vel_msg.linear.y = self.left_stick_horizontal
+        self.pub_linear_y.publish(self.left_stick_horizontal)
         # Ascend / descend
         self.pub_linear_z.publish(self.right_stick_vertical * self.max_vertical_speed)
-        #vel_msg.linear.z = self.right_stick_vertical
         # Rotate
         self.pub_angular_z.publish(self.right_stick_horizontal * self.max_rotation_speed)
-        #vel_msg.angular.z = self.right_stick_horizontal
-        #print(vel_msg)
-        #self.pub_mov.publish(vel_msg)
 
 
     def Spin(self):

@@ -5,14 +5,13 @@ import rospy
 # import the message type you need (here are examples)
 from std_msgs.msg import Float32, Empty
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 
 # If you need to protect a variable by a mutex...
 from multiprocessing import Lock
 
 
-
 class SpeedController:
-
     def __init__(self):  # We are in thread #1 here.
 
         rospy.init_node('speed_controller')
@@ -23,7 +22,10 @@ class SpeedController:
 
         self.commanded_speed = Twist()
         self.normalized_speed = Twist()
-        self.speed_mutex = Lock()  # ... thanks to this mutex.
+        self.speed_mutex = Lock()
+
+        self.odom = Odometry()
+        self.odom_mutex = Lock()
 
         self.sub_linear_x = rospy.Subscriber("linear_x", Float32,
                                              self.update_linear_x,
@@ -38,7 +40,25 @@ class SpeedController:
                                               self.update_angular_z,
                                               queue_size=10)
 
+        self.sub_odom = rospy.Subscriber("/bebop/odom", Odometry,
+                                         self.update_odometry,
+                                         queue_size=10)
+
         self.pub_speed = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=10)
+
+        # Controller
+
+        self.gains = {
+            "linear_x": {'Kp': 1.0, 'Kd': 0.0, 'Ki': 0.0},
+            "linear_y": {'Kp': 1.0, 'Kd': 0.0, 'Ki': 0.0}
+        }
+
+        self.errors_last_update = 0
+
+        self.errors = {
+            "linear_x": {'error': 0.0, 'D_error': 0.0, 'I_error': 0.0, 'time': rospy.Time.now()},
+            "linear_y": {'error': 0.0, 'D_error': 0.0, 'I_error': 0.0, 'time': rospy.Time.now()}
+        }
 
     def publish_speed(self):
         self.pub_speed.publish(self.normalized_speed)
@@ -61,20 +81,48 @@ class SpeedController:
 
     def loop(self):
         while not rospy.is_shutdown():
+            if self.odom.header.stamp != self.errors_last_update:
+                with self.odom_mutex:
+                    self.update_errors()
+                self.errors_last_update = self.errors['linear_x']['time']
+
             with self.speed_mutex:
-                #self.normalized_speed.linear.x = self.commanded_speed.linear.x / self.max_vertical_speed
-                #self.normalized_speed.linear.y = self.commanded_speed.linear.y / self.max_vertical_speed
+                self.normalized_speed.linear.x = self.gains['linear_x']['Kp']*self.errors['linear_x']['error'] / self.max_vertical_speed
+                self.normalized_speed.linear.y = self.gains['linear_y']['Kp']*self.errors['linear_y']['error'] / self.max_vertical_speed
                 self.normalized_speed.linear.z = self.commanded_speed.linear.z / self.max_vertical_speed
                 self.normalized_speed.angular.z = self.commanded_speed.angular.z / self.max_rotation_speed
                 self.publish_speed()
 
-            rospy.sleep(1/self.frequency)  # we sleep for 100ms
+            rospy.sleep(1 / self.frequency)  # we sleep for 100ms
+
+    def update_odometry(self, data):
+        with self.odom_mutex:
+            self.odom = data
+
+    def update_errors(self):
+        last_errors = self.errors
+        now = self.odom.header.stamp
+        self.errors['linear_x']['error'] = self.commanded_speed.linear.x - self.odom.twist.twist.linear.x
+        self.errors['linear_x']['D_error'] = (self.errors['linear_x']['error'] - last_errors['linear_x']['error']) \
+                                             / (now - last_errors['linear_x']['time'])
+        self.errors['linear_x']['I_error'] = self.errors['linear_x']['I_error'] + \
+                                             (self.errors['linear_x']['error'] + last_errors['linear_x']['error']) * \
+                                             (now - last_errors['linear_x']['time']) / 2
+        self.errors['linear_x']['time'] = now
+
+        self.errors['linear_y']['error'] = self.commanded_speed.linear.y - self.odom.twist.twist.linear.y
+        self.errors['linear_y']['D_error'] = (self.errors['linear_y']['error'] - last_errors['linear_y']['error']) \
+                                             / (now - last_errors['linear_y']['time'])
+        self.errors['linear_y']['I_error'] = self.errors['linear_y']['I_error'] + \
+                                             (self.errors['linear_y']['error'] + last_errors['linear_y']['error']) * \
+                                             (now - last_errors['linear_y']['time']) / 2
+        self.errors['linear_y']['time'] = now
 
 
 if __name__ == '__main__':
     my_node = SpeedController()
     my_node.loop()
-    #rospy.spin()  # useless... since loop already blocks. If you have
+    # rospy.spin()  # useless... since loop already blocks. If you have
     # no idle job (i.e. loop) to do outside event
     # handling, rospy.spin() is mandatory in order to
     # prevent from immediate termination of your node.
