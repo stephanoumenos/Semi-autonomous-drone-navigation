@@ -40,12 +40,13 @@ class Behavior(object):
         return copy
 
     def set_status(self, status):
-        with self.active_mutex:
             if status and not self.active:
-                self.active = True
+                with self.active_mutex:
+                    self.active = True
                 self.on_status_on()
             elif not status and self.active:
-                self.active = False
+                with self.active_mutex:
+                    self.active = False
                 self.on_status_off()
 
     # This is in the main thread #1
