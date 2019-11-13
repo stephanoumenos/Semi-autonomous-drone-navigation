@@ -85,25 +85,43 @@ class JoyMap():
         self.right_stick_horizontal = self.invertStick(axesArray[3])
         self.right_stick_vertical = axesArray[4]
 
-    def take_off(self):
+    def publish_movement(self, movement):
         message = String()
-        message.data = 'TakeOff'
+        message.data = movement
         self.pub_takeoff_behavior.publish(message)
+
+    def take_off(self):
+        self.publish_movement('TakeOff')
 
     def land(self):
-        message = String()
-        message.data = 'Land'
-        self.pub_takeoff_behavior.publish(message)
+        self.publish_movement('Land')
 
     def hover(self):
-        message = String()
-        message.data = 'Hover'
-        self.pub_takeoff_behavior.publish(message)
+        self.publish_movement('Hover')
 
     def move_forward(self):
-        message = String()
-        message.data = 'MoveForward'
-        self.pub_takeoff_behavior.publish(message)
+        self.publish_movement('MoveForward')
+
+    def move_backwards(self):
+        self.publish_movement('MoveBackwards')
+
+    def move_left(self):
+        self.publish_movement('MoveLeft')
+
+    def move_right(self):
+        self.publish_movement('MoveRight')
+
+    def move_up(self):
+        self.publish_movement('MoveUp')
+
+    def move_down(self):
+        self.publish_movement('MoveDown')
+
+    def rotate_left(self):
+        self.publish_movement('RotateLeft')
+
+    def rotate_right(self):
+        self.publish_movement('RotateRight')
 
     def publishMappedVelocities(self, data):
         """
@@ -138,22 +156,43 @@ class JoyMap():
         if self.B == 1:
             self.hover()
 
-        if self.UP_DIRECTIONAL > self.PRESSED_THRESHOLD:
-            self.move_forward()
-
         assert (self.left_stick_horizontal is not None and
                 self.left_stick_vertical is not None and
                 self.right_stick_horizontal is not None and
                 self.right_stick_vertical is not None)
 
-        # Translate forward / back
-        self.pub_linear_x.publish(self.left_stick_vertical)
+        if self.left_stick_vertical > self.PRESSED_THRESHOLD:
+            self.move_forward()
+
+        if self.left_stick_vertical < -self.PRESSED_THRESHOLD:
+            self.move_backwards()
+
+        if self.left_stick_horizontal > self.PRESSED_THRESHOLD:
+            self.move_right()
+
+        if self.left_stick_horizontal < -self.PRESSED_THRESHOLD:
+            self.move_left()
+
+        if self.right_stick_vertical > self.PRESSED_THRESHOLD:
+            self.move_up()
+
+        if self.right_stick_vertical < -self.PRESSED_THRESHOLD:
+            self.move_down()
+
+        if self.right_stick_horizontal > self.PRESSED_THRESHOLD:
+            self.rotate_right()
+
+        if self.right_stick_horizontal < -self.PRESSED_THRESHOLD:
+            self.rotate_left()
+
+       # Translate forward / back
+        #self.pub_linear_x.publish(self.left_stick_vertical)
         # Translate left / right
-        self.pub_linear_y.publish(self.left_stick_horizontal)
+        #self.pub_linear_y.publish(self.left_stick_horizontal)
         # Ascend / descend
-        self.pub_linear_z.publish(self.right_stick_vertical * self.max_vertical_speed)
+        #self.pub_linear_z.publish(self.right_stick_vertical * self.max_vertical_speed)
         # Rotate
-        self.pub_angular_z.publish(self.right_stick_horizontal * self.max_rotation_speed)
+        #self.pub_angular_z.publish(self.right_stick_horizontal * self.max_rotation_speed)
 
 
     def Spin(self):

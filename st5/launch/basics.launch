@@ -35,6 +35,19 @@
 
     <node name="move_forward_behavior" pkg="st5drone" type="move_forward.py" output="screen"/>
 
+    <node name="move_backwards_behavior" pkg="st5drone" type="move_backwards.py" output="screen"/>
+
+    <node name="move_left_behavior" pkg="st5drone" type="move_left.py" output="screen"/>
+
+    <node name="move_right_behavior" pkg="st5drone" type="move_right.py" output="screen"/>
+
+    <node name="move_up_behavior" pkg="st5drone" type="move_up.py" output="screen"/>
+
+    <node name="move_down_behavior" pkg="st5drone" type="move_down.py" output="screen"/>
+
+    <node name="rotate_left_behavior" pkg="st5drone" type="rotate_left.py" output="screen"/>
+
+    <node name="rotate_right_behavior" pkg="st5drone" type="rotate_right.py" output="screen"/>
 
     <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>
