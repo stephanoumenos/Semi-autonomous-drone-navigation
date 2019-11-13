@@ -111,91 +111,93 @@ def sci(values, confidence) :
         sup += 1
     return sci
 
-#defining region of interest
-region_of_interest_vertices = [(0, 50),(350,50),(350, 350),(0,350)]
+if __name__ == "__main__":
 
-#reading image
-image = mpimg.imread('Visual_Processing/corridor1.jpg')
+    #defining region of interest
+    region_of_interest_vertices = [(0, 50),(350,50),(350, 350),(0,350)]
 
-#plt.figure()
-#plt.imshow(image)
+    #reading image
+    image = mpimg.imread('Visual_Processing/corridor1.jpg')
 
-# convert to grayscale
-gray_image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
+    #plt.figure()
+    #plt.imshow(image)
 
-#Line Segment detector algorithm
-cannyed_image = cv2.Canny(gray_image,100,200)
+    # convert to grayscale
+    gray_image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
 
-#cropping _ line segment image
-cropped_image = region_of_interest(cannyed_image, np.array([region_of_interest_vertices], np.int32),)
+    #Line Segment detector algorithm
+    cannyed_image = cv2.Canny(gray_image,100,200)
 
-lines = cv2.HoughLinesP(
-    cropped_image,
-    rho=6,
-    theta = np.pi/60,
-    threshold=160,
-    lines=np.array([]),
-    minLineLength=150,
-    maxLineGap=25
-) 
+    #cropping _ line segment image
+    cropped_image = region_of_interest(cannyed_image, np.array([region_of_interest_vertices], np.int32),)
 
-angle = np.deg2rad(75)
+    lines = cv2.HoughLinesP(
+        cropped_image,
+        rho=6,
+        theta = np.pi/60,
+        threshold=160,
+        lines=np.array([]),
+        minLineLength=150,
+        maxLineGap=25
+    ) 
 
-clean_list= []
+    angle = np.deg2rad(75)
 
-# cleaning vertical lines
-for line in lines:
-    for x1, y1, x2, y2 in line:
-        delta_x = x2 - x1
-        delta_y = y2 - y1
-        prop = delta_y/delta_x
-        if abs(prop) < np.tan(angle):
-            clean_list.append(line)
+    clean_list= []
 
-clean_list = np.array(clean_list)
+    # cleaning vertical lines
+    for line in lines:
+        for x1, y1, x2, y2 in line:
+            delta_x = x2 - x1
+            delta_y = y2 - y1
+            prop = delta_y/delta_x
+            if abs(prop) < np.tan(angle):
+                clean_list.append(line)
 
-new_list = []
+    clean_list = np.array(clean_list)
 
-for line in clean_list:
-    for x1,y1,x2,y2 in line:
-        a = y1-y2
-        b = x2-x1
-        c = x1*(y2-y1)+ y1*(x1-x2)
-        n = math.sqrt((y2-y1)**2 + (x2-x1)**2)
-        new_list.append(np.concatenate((np.array(line),np.array([a,b,c,n])),axis=None))
+    new_list = []
 
-#finding intersection points
-intersection_points = intersect(new_list)
+    for line in clean_list:
+        for x1,y1,x2,y2 in line:
+            a = y1-y2
+            b = x2-x1
+            c = x1*(y2-y1)+ y1*(x1-x2)
+            n = math.sqrt((y2-y1)**2 + (x2-x1)**2)
+            new_list.append(np.concatenate((np.array(line),np.array([a,b,c,n])),axis=None))
 
-# Removing intersection points outside image
-new_int_points=[]
-for point in intersection_points:
-    if point[0] > 0 and point[1] > 0:
-        new_int_points.append(point)
+    #finding intersection points
+    intersection_points = intersect(new_list)
+
+    # Removing intersection points outside image
+    new_int_points=[]
+    for point in intersection_points:
+        if point[0] > 0 and point[1] > 0:
+            new_int_points.append(point)
 
 
-x_int_points = np.array([a[0] for a in new_int_points])
-y_int_points = np.array([a[1] for a in new_int_points])
+    x_int_points = np.array([a[0] for a in new_int_points])
+    y_int_points = np.array([a[1] for a in new_int_points])
 
-x_confidence_interval = sci(x_int_points,0.30)
-y_confidence_interval = sci(y_int_points, 0.3)
+    x_confidence_interval = sci(x_int_points,0.30)
+    y_confidence_interval = sci(y_int_points, 0.3)
 
-valid_points =[]
-for element in new_int_points:
-    if x_confidence_interval[0] <= element[0] <= x_confidence_interval[1] and y_confidence_interval[0] <= element[1] <= y_confidence_interval[1]:
-        valid_points.append(element)
+    valid_points =[]
+    for element in new_int_points:
+        if x_confidence_interval[0] <= element[0] <= x_confidence_interval[1] and y_confidence_interval[0] <= element[1] <= y_confidence_interval[1]:
+            valid_points.append(element)
 
-#finding the centroid
-centroid= np.mean(valid_points,axis=0)
-print(centroid)
-    
-#OUTPUT
+    #finding the centroid
+    centroid= np.mean(valid_points,axis=0)
+    print(centroid)
 
-#print(intersection_points)
-new_image = draw_points(image,[centroid])
-#line_image = draw_lines(image,clean_list)
+    #OUTPUT
 
-plt.figure()
-plt.imshow(new_image)
+    #print(intersection_points)
+    new_image = draw_points(image,[centroid])
+    #line_image = draw_lines(image,clean_list)
 
-plt.show()
+    plt.figure()
+    plt.imshow(new_image)
+
+    plt.show()
