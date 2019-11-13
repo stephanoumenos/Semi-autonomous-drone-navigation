@@ -1,0 +1,22 @@
+<launch>
+    <arg name="joy_dev" default="/dev/input/js0"/>
+
+    <!-- Joystick driver -->
+    <node pkg="joy" type="joy_node" name="joy_node">
+        <param name="dev" value="$(arg joy_dev)"/>
+        <param name="deadzone" value="0.1"/>
+        <param name="autorepeat_rate" value="20"/>
+    </node>
+
+    <!-- joy to twist conversion -->
+    <node pkg="st5drone" name="joy_map" type="joy_map.py">
+    </node>
+
+    <node pkg="st5drone" type="status_viewer.py" name="status_viewer" output="screen"/>
+
+    <node name="command" pkg="st5drone" type="command.py" output="screen"/>
+
+    <node name="takeoff_behavior" pkg="st5drone" type="takeoff.py" output="screen"/>
+
+
+</launch>
