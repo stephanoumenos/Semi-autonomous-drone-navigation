@@ -29,7 +29,6 @@ def draw_lines(img, lines, color = [255,0,0], thickness = 3):
     # Loop over all the lines and draw them on the blank image.
     
     for line in lines:
-        print(line)
         x1, y1, x2, y2 = line[:4]
         cv2.line(line_img, (x1,y1),(x2,y2),color, thickness)
 
@@ -57,10 +56,10 @@ def draw_points(img, points, color = [255,0,0], thickness = 3):
 
     # Loop over all the lines and draw them on the blank image.
     for point in points:
-        x1 = math.floor(point[0])
-        y1 = math.floor(point[1])
+        x1 = int(math.floor(point[0]))
+        y1 = int(math.floor(point[1]))
         cv2.circle(point_img, (x1,y1) ,10 ,color, thickness)
-        #print(x1,y1)
+        
 
     # Merge the image with the lines onto the original
     img = cv2.addWeighted(img,0.8,point_img, 1.0, 0.0)
@@ -69,10 +68,11 @@ def draw_points(img, points, color = [255,0,0], thickness = 3):
 
 #line intersection algorithm
 def intersect(lines):
-    #print(lines)
     intersections = []
     for i, si in enumerate(lines):
+        si = np.array(si)
         for sj in lines[i+1:]:
+            sj = np.array(sj)
             cross_product = np.cross(si[4:6], sj[4:6]) # [a1,b1] ^ [a2, b2]
             if cross_product != 0:
                 coeff = 1.0 / cross_product
@@ -160,20 +160,27 @@ def draw(image, now):
     image_with_lines = draw_lines(image, new_list)
     #return image_with_lines
 
+    
+    # #finding intersection points
+    intersection_points = intersect(new_list)
+    if len(intersection_points) == 0:
+        return image_with_lines
+    #print(intersection_points)
+    #intersection point nparray of lists of floats 
+    # for i, element in enumerate(intersection_points):
+    
 
-    # # #finding intersection points
-    # intersection_points = intersect(new_list)
-    # if len(intersection_points) == 0:
-    #     return image_with_lines
+    # # Removing intersection points outside image
+    filtered_intersection_points = []
+    for point in intersection_points:
+        if point[0] > 0 and point[1] > 0:
+            filtered_intersection_points.append(point)
+    if len(filtered_intersection_points) == 0:
+        return image_with_lines    
 
-    # # # Removing intersection points outside image
-    # new_int_points=[]
-    # for point in intersection_points:
-    #     if point[0] > 0 and point[1] > 0:
-    #         new_int_points.append(point)
-    # if len(new_int_points) == 0:
-    #     return image_with_lines
-        
+    image_with_intersection = draw_points(image_with_lines, filtered_intersection_points)
+    return image_with_intersection    
+    
 
     # x_int_points = np.array([a[0] for a in new_int_points])
     # y_int_points = np.array([a[1] for a in new_int_points])
