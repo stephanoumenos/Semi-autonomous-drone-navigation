@@ -10,10 +10,11 @@ import sched, time
 class Command:
 
     def __init__(self):
-        self.behaviors = ['Hover', 'MoveLeft', 'MoveUp', 'MoveRight', 'RotateLeft']
-        self.commands  = {
-            'Stop' : [(0, 'Hover')],
-            'Dance' : [(0, 'MoveLeft'), (0, 'MoveUp'), (2.5, 'MoveRight'), (3.2, 'Hover')]
+        self.behaviors = ['Hover', 'MoveLeft', 'MoveUp', 'MoveRight', 'RotateLeft', 'TakeOff']
+        self.commands = {
+            'Stop': [(0, 'Hover')],
+            'Dance': [(0, 'MoveLeft'), (0, 'MoveUp'), (2.5, 'MoveRight'), (3.2, 'Hover')],
+            'TakeOff': [(0, 'TakeOff')]
         }
 
         self.command = rospy.Subscriber("/command", String, self.command_callback, queue_size=1)
@@ -29,13 +30,9 @@ class Command:
             message.active = False
             # print(message)
             self.behavior.publish(message)
-        
-            
-            
 
         self.event_queue.setEvents(self.commands[msg])
-            
-                
+
         while not rospy.is_shutdown():
             validEvents = self.event_queue.returnValidEvents()
             
