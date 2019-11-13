@@ -6,7 +6,6 @@ import math
 from scipy import stats
 
 #manipulating region of interest of photo
-
 def region_of_interest(img, vertices):
     # Define a blank matrix that matches the image height/width.
     mask = np.zeros_like(img)    # Retrieve the number of color channels of the image.
@@ -23,6 +22,7 @@ def region_of_interest(img, vertices):
 #draw_lines algorithm
 
 def draw_lines(img, lines, color = [255,0,0], thickness = 3):
+    # Takes an image and coordinates of desired lines and returns an image with the drawn lines
     if len(lines)==0:
         return
     
@@ -49,6 +49,7 @@ def draw_lines(img, lines, color = [255,0,0], thickness = 3):
     return img
 
 def draw_points(img, points, color = [255,0,0], thickness = 3):
+    # Takes an image and coordinates of desired lines and returns an image with the drawn points
     if len(points)==0:
         return
     
@@ -77,7 +78,6 @@ def draw_points(img, points, color = [255,0,0], thickness = 3):
     return img
 
 #line intersection algorithm
-
 def intersect(lines):
     #print(lines)
     intersections = []
@@ -91,8 +91,7 @@ def intersect(lines):
                                       coeff * np.cross(sj[[4, 6]], si[[4, 6]])]) # -[a1, c1] ^ [a2, c2]
     return np.array(intersections)
 
-#defining confidence interval
-
+# Removing outliers
 def sci(values, confidence) :
     nb        = values.shape[0]
     values    = np.sort(values)
