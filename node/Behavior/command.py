@@ -3,6 +3,7 @@
 import rospy
 from st5drone.msg import BehaviorStatus
 from std_msgs.msg import String
+from event_queue import EventQueue
 
 import sched, time
 
@@ -18,8 +19,7 @@ class Command:
         self.command = rospy.Subscriber("/command", String, self.command_callback, queue_size=1)
         self.behavior = rospy.Publisher("/behavior", BehaviorStatus, queue_size=1)
 
-        self.event_queue = sched.scheduler(time.time, time.sleep)
-        self.event_queue.run()
+        self.event_queue = EventQueue()
 
     def command_callback(self, msg):
         print("Entered callback")
@@ -30,22 +30,25 @@ class Command:
             # print(message)
             self.behavior.publish(message)
         
+            
+            
+
+        self.event_queue.setEvents(self.commands[msg])
+            
+                
+        while not rospy.is_shutdown():
+            validEvents = self.event_queue.returnValidEvents()
+            
+            for behavior in validEvents:
+                self.contact_behavior(behavior[1])
+
+            rospy.sleep(0.1)
         
-        event_queue = sched.scheduler(time.time, time.sleep)
-        for call in self.commands[msg]:
-            # print("Requested call " + call[1] + "for a time " + str(call[0])   )  
-           
-            event_queue.enter(call[0], 0, self.contact_behavior, (call[1],) )
-
-        event_queue.run()
-
     def contact_behavior(self, behavior_name):
     
         message = BehaviorStatus()
         message.behavior_name = behavior_name
         message.active = True
-
-        # print(message)
 
         self.behavior.publish(message)
 
@@ -55,6 +58,7 @@ if __name__ == '__main__':     # This is the main thread, thread #1
 
     my_node = Command()
 
+    # Adds synchronous behavior to the testing
     # rospy.sleep(1)
     # my_node.command_callback("Dance")
     
