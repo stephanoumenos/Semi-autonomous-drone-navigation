@@ -3,7 +3,7 @@
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Empty, Float32
+from std_msgs.msg import Empty, Float32, String
 
 
 # Expected input sizes
@@ -33,6 +33,7 @@ class JoyMap():
         #self.pub_mov = rospy.Publisher('/target_vel', Twist, queue_size=50)
         self.pub_land = rospy.Publisher('/bebop/land', Empty, queue_size=0)
         self.pub_takeoff = rospy.Publisher('/bebop/takeoff', Empty, queue_size=0)
+        self.pub_takeoff_behavior = rospy.Publisher('/command', String, queue_size=0)
 
         self.sub = rospy.Subscriber('/joy', Joy, callback=self.publishMappedVelocities)
 
@@ -40,6 +41,12 @@ class JoyMap():
 
         # Emergency
         self.A = None
+
+        # TakeOff
+        self.B = None
+
+        # Land
+        self.Y = None
 
         self.RT = None
         self.left_stick_horizontal = None
@@ -66,8 +73,14 @@ class JoyMap():
         # Landing / take-off
         self.RT = self.axisToPercentage(axesArray[5])
 
-        # A to break
+        # A to land
         self.A = buttonArray[self.BRAKE_BUTTON]
+
+        # B to takeoff
+        self.B = buttonArray[1]
+
+        # Y to land
+        self.Y = buttonArray[3]
 
         # Left Stick
         self.left_stick_horizontal = axesArray[0]
@@ -82,6 +95,16 @@ class JoyMap():
     def land(self):
         print("LAND")
         self.pub_land.publish(Empty())
+
+    def take_off_behavior(self):
+        message = String()
+        message.data = 'TakeOff'
+        self.pub_takeoff_behavior.publish(message)
+
+    def land_behavior(self):
+        message = String()
+        message.data = 'Land'
+        self.pub_takeoff_behavior.publish(message)
 
     def publishMappedVelocities(self, data):
         """
@@ -102,7 +125,7 @@ class JoyMap():
             self.land()
             return
 
-        if self.RT >= self.PRESSED_THRESHOLD:
+        elif self.RT >= self.PRESSED_THRESHOLD:
             if self.last_command != 'take_off':
                 self.take_off()
                 self.last_command = 'take_off'
@@ -112,6 +135,12 @@ class JoyMap():
                 self.land()
                 self.last_command = 'land'
                 return
+
+        if self.B == 1:
+            self.take_off_behavior()
+
+        if self.Y == 1:
+            self.land_behavior()
 
         assert (self.left_stick_horizontal is not None and
                 self.left_stick_vertical is not None and
