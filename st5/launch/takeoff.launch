@@ -20,5 +20,7 @@
 
     <node name="land_behavior" pkg="st5drone" type="land.py" output="screen"/>
 
+    <node name="hover_behavior" pkg="st5drone" type="hover.py" output="screen"/>
+
 
 </launch>
