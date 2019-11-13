@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 
 import rospy
 from behavior import Behavior
@@ -8,7 +9,7 @@ from std_msgs.msg import Empty
 class Land(Behavior):
 
     def __init__(self):
-        super(TakeOff, self).__init__('Land')
+        super(Land, self).__init__('Land')
         self.pub_takeoff = rospy.Publisher('/bebop/land', Empty, queue_size=0)
 
     def on_status_on(self):
