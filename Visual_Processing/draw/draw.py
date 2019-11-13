@@ -6,20 +6,6 @@ import math
 import sys
 from scipy import stats
 
-#manipulating region of interest of photo
-def region_of_interest(img, vertices):
-    # Define a blank matrix that matches the image height/width.
-    mask = np.zeros_like(img)    # Retrieve the number of color channels of the image.
-
-    match_mask_color = 255
-      
-    # Fill inside the polygon
-    cv2.fillPoly(mask, vertices, match_mask_color)
-    
-    # Returning the image only where mask pixels match
-    masked_image = cv2.bitwise_and(img, mask)
-    return masked_image
-
 #draw_lines algorithm
 
 def draw_lines(img, lines, color = [255,0,0], thickness = 3):
@@ -111,13 +97,10 @@ def sci(values, confidence) :
         sup += 1
     return sci
 
-if __name__ == "__main__":
-
-    #defining region of interest
-    region_of_interest_vertices = [(0, 50),(350,50),(350, 350),(0,350)]
+def draw(frame, now):
 
     #reading image
-    image = mpimg.imread('Visual_Processing/corridor1.jpg')
+    image = mpimg.imread(frame)
 
     #plt.figure()
     #plt.imshow(image)
@@ -127,9 +110,6 @@ if __name__ == "__main__":
 
     #Line Segment detector algorithm
     cannyed_image = cv2.Canny(gray_image,100,200)
-
-    #cropping _ line segment image
-    cropped_image = region_of_interest(cannyed_image, np.array([region_of_interest_vertices], np.int32),)
 
     lines = cv2.HoughLinesP(
         cropped_image,
@@ -194,10 +174,10 @@ if __name__ == "__main__":
     #OUTPUT
 
     #print(intersection_points)
-    new_image = draw_points(image,[centroid])
+    #new_image = draw_points(image,[centroid])
     #line_image = draw_lines(image,clean_list)
 
-    plt.figure()
-    plt.imshow(new_image)
+    #plt.figure()
+    #plt.imshow(new_image)
 
-    plt.show()
+    #plt.show()

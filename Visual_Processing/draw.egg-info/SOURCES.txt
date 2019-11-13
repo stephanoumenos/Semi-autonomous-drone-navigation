@@ -1,0 +1,8 @@
+setup.py
+draw/__init__.py
+draw/draw.py
+draw.egg-info/PKG-INFO
+draw.egg-info/SOURCES.txt
+draw.egg-info/dependency_links.txt
+draw.egg-info/not-zip-safe
+draw.egg-info/top_level.txt
