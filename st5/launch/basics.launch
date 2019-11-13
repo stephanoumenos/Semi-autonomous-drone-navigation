@@ -21,5 +21,20 @@
     <node pkg="st5drone" name="speed_controller" type="speed_controller.py">
     </node>
 
+    <!-- BEHAVIORS -->
+
+    <node pkg="st5drone" type="status_viewer.py" name="status_viewer" output="screen"/>
+
+    <node name="command" pkg="st5drone" type="command.py" output="screen"/>
+
+    <node name="takeoff_behavior" pkg="st5drone" type="takeoff.py" output="screen"/>
+
+    <node name="land_behavior" pkg="st5drone" type="land.py" output="screen"/>
+
+    <node name="hover_behavior" pkg="st5drone" type="hover.py" output="screen"/>
+
+    <node name="move_forward_behavior" pkg="st5drone" type="move_forward.py" output="screen"/>
+
+
     <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>

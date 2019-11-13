@@ -44,6 +44,8 @@ class JoyMap():
 
         self.B = None
 
+        self.UP_DIRECTIONAL = None
+
         self.RT = None
         self.left_stick_horizontal = None
         self.left_stick_vertical = None
@@ -75,6 +77,8 @@ class JoyMap():
         # B to hover
         self.B = buttonArray[1]
 
+        self.UP_DIRECTIONAL = axesArray[7]
+
         # Left Stick
         self.left_stick_horizontal = axesArray[0]
         self.left_stick_vertical = axesArray[1]
@@ -94,6 +98,11 @@ class JoyMap():
     def hover(self):
         message = String()
         message.data = 'Hover'
+        self.pub_takeoff_behavior.publish(message)
+
+    def move_forward(self):
+        message = String()
+        message.data = 'MoveForward'
         self.pub_takeoff_behavior.publish(message)
 
     def publishMappedVelocities(self, data):
@@ -128,6 +137,9 @@ class JoyMap():
 
         if self.B == 1:
             self.hover()
+
+        if self.UP_DIRECTIONAL > self.PRESSED_THRESHOLD:
+            self.move_forward()
 
         assert (self.left_stick_horizontal is not None and
                 self.left_stick_vertical is not None and
