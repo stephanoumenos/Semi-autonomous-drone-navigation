@@ -3,6 +3,7 @@ import matplotlib.image as mpimg
 import numpy as np
 import cv2
 import math
+import sys
 from scipy import stats
 
 #manipulating region of interest of photo
@@ -114,7 +115,7 @@ def sci(values, confidence) :
 region_of_interest_vertices = [(0, 50),(350,50),(350, 350),(0,350)]
 
 #reading image
-image = mpimg.imread('corridor1.jpg')
+image = mpimg.imread('Visual_Processing/corridor1.jpg')
 
 #plt.figure()
 #plt.imshow(image)
@@ -173,23 +174,28 @@ for point in intersection_points:
         new_int_points.append(point)
 
 
-#Outlier removal
-#z_score_means = list(map(np.mean, np.abs(stats.zscore(new_int_points))))
+x_int_points = np.array([a[0] for a in new_int_points])
+y_int_points = np.array([a[1] for a in new_int_points])
 
-#clustered = []
-#for i, zscore in enumerate(z_score_means):
-#    if zscore > 0.3:
-#        clustered.append(intersection_points[i])
+x_confidence_interval = sci(x_int_points,0.30)
+y_confidence_interval = sci(y_int_points, 0.3)
 
+valid_points =[]
+for element in new_int_points:
+    if x_confidence_interval[0] <= element[0] <= x_confidence_interval[1] and y_confidence_interval[0] <= element[1] <= y_confidence_interval[1]:
+        valid_points.append(element)
 
-
+#finding the centroid
+centroid= np.mean(valid_points,axis=0)
+print(centroid)
+    
 #OUTPUT
 
 #print(intersection_points)
-#new_image = draw_points(image,clustered)
+new_image = draw_points(image,[centroid])
 #line_image = draw_lines(image,clean_list)
 
-#plt.figure()
-#plt.imshow(new_image)
+plt.figure()
+plt.imshow(new_image)
 
-#plt.show()
+plt.show()
