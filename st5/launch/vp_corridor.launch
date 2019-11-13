@@ -1,6 +1,16 @@
 <launch>
+    <?ignore
+    <node pkg="rqt_bag" type="rqt_bag" name="corridor" args="--clock /home/gabriel/st5drone/Visual_Processing/corridor.bag"/>
+    ?>
+    
     <node pkg="rosbag" type="play" name="corridor" args="--clock /home/gabriel/st5drone/Visual_Processing/corridor.bag"/>
+    
+    <node name="visual_processor" pkg="st5drone" type="vp_node.py" output="screen">
+        <remap from="image_in/compressed" to="bebop/image_raw/compressed"/>
+    </node>
 
-    <node name="visual_processor" pkg="st5drone" type="vp_node.py" output="screen"/>
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view"/>
+
+
 
 </launch>
