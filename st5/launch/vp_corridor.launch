@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="rosbag" type="play" name="corridor" args="--clock /home/gabriel/st5drone/Visual_Processing/corridor.bag"/>
+
+    <node name="visual_processor" pkg="st5drone" type="vp_node.py" output="screen"/>
+
+</launch>
