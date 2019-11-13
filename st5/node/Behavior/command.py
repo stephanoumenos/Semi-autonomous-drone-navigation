@@ -21,7 +21,7 @@ class Command:
             'Land': [(0, 'Land')],
             'Hover': [(0, 'Hover')],
             'MoveForward': [(0, 'MoveForward')],
-            'MoveBackwards': [(0, 'MoveBackwards')]
+            'MoveBackwards': [(0, 'MoveBackwards')],
             'MoveLeft': [(0, 'MoveLeft')],
             'MoveRight': [(0, 'MoveRight')],
             'MoveDown': [(0, 'MoveDown')],
