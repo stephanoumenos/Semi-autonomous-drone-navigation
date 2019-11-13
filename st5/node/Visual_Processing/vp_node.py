@@ -25,14 +25,14 @@ class Test:
         now = msg.header.stamp
 
         # Let us publish the gray image
-        if self.pub.get_num_connections() > 0:
-            #image = vp.io_test(frame, now)
+        #if self.pub.get_num_connections() > 0:
+        image = vp.draw(frame, now)
 
-            msg              = CompressedImage()
-            msg.header.stamp = rospy.Time.now()
-            msg.format       = "jpeg"
-            msg.data         = np.array(cv2.imencode('.jpg', frame)[1]).tostring()
-            self.pub.publish(msg)
+        msg              = CompressedImage()
+        msg.header.stamp = rospy.Time.now()
+        msg.format       = "jpeg"
+        msg.data         = np.array(cv2.imencode('.jpg', image)[1]).tostring()
+        self.pub.publish(msg)
 
 
 
