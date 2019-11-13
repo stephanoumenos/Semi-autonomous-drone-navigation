@@ -114,18 +114,19 @@ def draw(image, now):
     gray_image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
 
     #Line Segment detector algorithm
-    cannyed_image = cv2.Canny(gray_image,100,200)
+    #cannyed_image = cv2.Canny(gray_image,100,200)
 
-    lines = cv2.HoughLinesP(
-        cannyed_image,
-        rho=6,
-        theta = np.pi/60,
-        threshold=160,
-        lines=np.array([]),
-        minLineLength=90,
-        maxLineGap=25
-    ) 
-
+    # lines = cv2.HoughLinesP(
+    #     cannyed_image,
+    #     rho=6,
+    #     theta = np.pi/60,
+    #     threshold=160,
+    #     lines=np.array([]),
+    #     minLineLength=90,
+    #     maxLineGap=25
+    # ) 
+    lsd_detector          = cv2.createLineSegmentDetector()
+    lines, _, _, _ = lsd_detector.detect(gray_image)
     if lines is None:
         return image
 
@@ -179,7 +180,7 @@ def draw(image, now):
         return image_with_lines    
 
     image_with_intersection = draw_points(image_with_lines, filtered_intersection_points)
-    return image_with_intersection    
+    return image_with_lines    
     
 
     # x_int_points = np.array([a[0] for a in new_int_points])
