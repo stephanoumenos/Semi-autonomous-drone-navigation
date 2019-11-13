@@ -31,7 +31,7 @@ class Command:
             # print(message)
             self.behavior.publish(message)
 
-        self.event_queue.setEvents(self.commands[msg])
+        self.event_queue.setEvents(self.commands[msg.data])
 
         while not rospy.is_shutdown():
             validEvents = self.event_queue.returnValidEvents()
