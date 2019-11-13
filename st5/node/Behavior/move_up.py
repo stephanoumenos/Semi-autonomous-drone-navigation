@@ -4,5 +4,5 @@ from move_behavior import Move
 import rospy
 
 if __name__ == '__main__':
-    MoveUp = Move('MoveUp', '/linear_z', 'translational')
+    MoveUp = Move('MoveUp', '/linear_z')
     rospy.spin()

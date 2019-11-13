@@ -4,5 +4,5 @@ from move_behavior import Move
 import rospy
 
 if __name__ == '__main__':
-    MoveBackwards = Move('MoveBackwards', '/linear_x', 'translational', backwards=True)
+    MoveBackwards = Move('MoveBackwards', '/linear_x', backwards=True)
     rospy.spin()

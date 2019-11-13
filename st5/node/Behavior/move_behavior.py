@@ -10,15 +10,15 @@ from std_msgs.msg import Float32
 
 class Move(Behavior):
 
-    def __init__(self, name, topic, translational_or_rotational, backwards=False):
+    def __init__(self, name, topic, rotational=False, backwards=False):
         super(Move, self).__init__(name)
         self.TRANSLATIONAL_SPEED = 0.5
         self.ROTATIONAL_SPEED = 50
         self.MOVEMENT_DURATION = 1
-        if translational_or_rotational:
-            self.movement_speed = self.TRANSLATIONAL_SPEED
-        else:
+        if rotational:
             self.movement_speed = self.ROTATIONAL_SPEED
+        else:
+            self.movement_speed = self.TRANSLATIONAL_SPEED
         if backwards:
             self.movement_speed *= -1
         self.pub = rospy.Publisher(topic, Float32, queue_size=0)
