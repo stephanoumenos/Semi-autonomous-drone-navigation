@@ -18,5 +18,7 @@
 
     <node name="takeoff_behavior" pkg="st5drone" type="takeoff.py" output="screen"/>
 
+    <node name="land_behavior" pkg="st5drone" type="land.py" output="screen"/>
+
 
 </launch>

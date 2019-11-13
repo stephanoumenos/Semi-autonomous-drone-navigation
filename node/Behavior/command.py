@@ -10,11 +10,12 @@ import sched, time
 class Command:
 
     def __init__(self):
-        self.behaviors = ['Hover', 'MoveLeft', 'MoveUp', 'MoveRight', 'RotateLeft', 'TakeOff']
+        self.behaviors = ['Hover', 'MoveLeft', 'MoveUp', 'MoveRight', 'RotateLeft', 'TakeOff', 'Land']
         self.commands = {
             'Stop': [(0, 'Hover')],
             'Dance': [(0, 'MoveLeft'), (0, 'MoveUp'), (2.5, 'MoveRight'), (3.2, 'Hover')],
-            'TakeOff': [(0, 'TakeOff')]
+            'TakeOff': [(0, 'TakeOff')],
+            'Land': [(0, 'Land')]
         }
 
         self.command = rospy.Subscriber("/command", String, self.command_callback, queue_size=1)

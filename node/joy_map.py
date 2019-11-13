@@ -45,6 +45,9 @@ class JoyMap():
         # TakeOff
         self.B = None
 
+        # Land
+        self.Y = None
+
         self.RT = None
         self.left_stick_horizontal = None
         self.left_stick_vertical = None
@@ -76,6 +79,9 @@ class JoyMap():
         # B to takeoff
         self.B = buttonArray[1]
 
+        # Y to land
+        self.Y = buttonArray[3]
+
         # Left Stick
         self.left_stick_horizontal = axesArray[0]
         self.left_stick_vertical = axesArray[1]
@@ -93,6 +99,11 @@ class JoyMap():
     def take_off_behavior(self):
         message = String()
         message.data = 'TakeOff'
+        self.pub_takeoff_behavior.publish(message)
+
+    def land_behavior(self):
+        message = String()
+        message.data = 'Land'
         self.pub_takeoff_behavior.publish(message)
 
     def publishMappedVelocities(self, data):
@@ -127,6 +138,9 @@ class JoyMap():
 
         if self.B == 1:
             self.take_off_behavior()
+
+        if self.Y == 1:
+            self.land_behavior()
 
         assert (self.left_stick_horizontal is not None and
                 self.left_stick_vertical is not None and
