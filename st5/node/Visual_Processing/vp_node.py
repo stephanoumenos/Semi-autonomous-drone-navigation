@@ -6,7 +6,7 @@ import cv2
 import rospy
 from sensor_msgs.msg import CompressedImage
 
-import draw
+import vp_core as vp
 
 class Test:
     
@@ -22,7 +22,7 @@ class Test:
         # time sequence when the images come from a ros bag, since ros bag execution
         # can be paused, run step by step, ...
         now = msg.header.stamp
-        draw.draw.draw(frame, now)
+        vp.draw(frame, now)
 
 if __name__ == '__main__':
     rospy.init_node('test')
