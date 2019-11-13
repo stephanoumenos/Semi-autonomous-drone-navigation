@@ -10,8 +10,8 @@ from std_msgs.msg import Float32
 
 class Move(Behavior):
 
-    def __init__(self, topic, translational_or_rotational):
-        super(Move, self).__init__('Move')
+    def __init__(self, name, topic, translational_or_rotational):
+        super(Move, self).__init__(name)
         self.TRANSLATIONAL_SPEED = 0.5
         self.ROTATIONAL_SPEED = 50
         self.MOVEMENT_DURATION = 1
