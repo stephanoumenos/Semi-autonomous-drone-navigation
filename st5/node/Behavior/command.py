@@ -16,8 +16,9 @@ class Command:
         self.commands = {
             'Stop': [(0, 'Hover')],
             'Dance': [(0, 'MoveLeft'), (0, 'MoveUp'), (2.5, 'MoveRight'), (3.2, 'Hover')],
-            'TakeOff': [(0, 'TakeOff')],
-            'Land': [(0, 'Land')]
+            'TakeOff': [(0, 'TakeOff'), (1, 'Hover')],
+            'Land': [(0, 'Land')],
+            'Hover': [(0, 'Hover')]
         }
 
         self.command = rospy.Subscriber("/command", String, self.command_callback, queue_size=1)

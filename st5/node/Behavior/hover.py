@@ -6,11 +6,11 @@ from behavior import Behavior
 from std_msgs.msg import Empty
 
 
-class TakeOff(Behavior):
+class Hover(Behavior):
 
     def __init__(self):
-        super(TakeOff, self).__init__('TakeOff')
-        self.pub_takeoff = rospy.Publisher('/bebop/takeoff', Empty, queue_size=0)
+        super(Hover, self).__init__('Hover')
+        self.pub_takeoff = rospy.Publisher('/autoflight/pause', Empty, queue_size=0)
 
     def on_status_on(self):
         self.pub_takeoff.publish(Empty())
@@ -22,6 +22,5 @@ class TakeOff(Behavior):
 
 
 if __name__ == '__main__':
-    node = TakeOff()
+    node = Hover()
     rospy.spin()
-
