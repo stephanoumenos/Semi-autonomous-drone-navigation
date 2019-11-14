@@ -5,7 +5,7 @@
 import rospy
 from behavior import Behavior
 
-from std_msgs.msg import Float32, String
+from std_msgs.msg import Float32, String, Bool
 
 
 class Move(Behavior):
@@ -24,13 +24,24 @@ class Move(Behavior):
         if backwards:
             self.movement_speed *= -1
         self.pub = rospy.Publisher(topic, Float32, queue_size=0)
+        # Publish when its moving so the controller stops
+        self.pub_moving = rospy.Publisher('/moving', Bool, queue_size=0)
         self.pub_command = rospy.Publisher('/command', String, queue_size=0)
 
     def move(self):
+        moving_msg = Bool()
+        moving_msg.data = True
+        self.pub_moving.publish(moving_msg)
+
         self.pub.publish(self.movement_speed)
 
     def stop(self):
         self.pub.publish(0)
+
+        moving_msg = Bool()
+        moving_msg.data = False
+        self.pub_moving.publish(moving_msg)
+
         hover_msg = String()
         hover_msg.data = "Hover"
         self.pub_command.publish(hover_msg)
