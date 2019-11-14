@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import sys
 
 def draw_lines(img, lines, color = [255,0,0], thickness = 3):
     # Draws the lines described into lines over the given image
@@ -46,7 +47,6 @@ def draw_points(img, points, color = [255,0,0], thickness = 3):
 
     # Loop over all the lines and draw them on the blank image.
     for point in points:
-        print(point)
         x1 = int(math.floor(point[0]))
         y1 = int(math.floor(point[1]))
         cv2.circle(point_img, (x1,y1) ,10 ,color, thickness)
@@ -96,7 +96,6 @@ def intersect_lines(lines):
 
     # Find the intersections between the lines
     intersection_points = intersect(canonical_lines)
-
     return intersection_points
 
 # Filters intersection to inside screen
@@ -107,6 +106,66 @@ def filter_intersections(image, intersections):
             filtered_points.append(point)
     return filtered_points
 
+def sci(values, confidence):
+    nb        = values.shape[0]
+    values    = np.sort(values)
+    size      = (int)(nb*confidence+.5)
+    nb_iter   = nb - size + 1
+    sci       = None
+    sci_width = sys.float_info.max
+    inf       = 0
+    sup       = size
+    if sup == 0:
+        return -1
+    for i in range(nb_iter) :
+        sciw = values[sup-1] - values[inf]
+        if sciw < sci_width :
+            sci       = values[inf:sup]
+            sci_width = sciw
+        inf += 1
+        sup += 1
+    return sci
+
+
+def compute_centroid(points):
+    x_points = np.array([point[0] for point in points])
+    y_points = np.array([point[1] for point in points])
+
+    x_confidence_interval = sci(x_points, 0.3)
+    y_confidence_interval = sci(y_points, 0.3)
+
+    centroid = [np.median(x_confidence_interval), np.median(y_confidence_interval)]
+    
+    return centroid
+
+
+def filter_lines(lines, angle, min_length):
+    non_vertical_lines = []
+
+    if lines is None:
+        return None
+
+    for line in lines:
+        x1, y1, x2, y2 = line
+        delta_x = x2 - x1
+        delta_y = y2 - y1
+
+        line_angle = np.rad2deg(abs(np.arctan2(delta_y, delta_x)))
+        if line_angle > 90:
+            line_angle = 180 - line_angle
+
+        print(line_angle)
+
+        if line_angle < angle and line_length(line) > min_length:
+            non_vertical_lines.append([x1, y1, x2, y2])
+
+    
+    return non_vertical_lines
+def line_length(line):
+    x1, y1, x2, y2 = line
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+    
+
 def draw(image, now):
     # Takes a image and returns it overlayed with detected lines and vanishing point
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -115,15 +174,18 @@ def draw(image, now):
     detected_lines = lsd_detector(gray_image)
     # If no lines are found, we can return the empty image
         # Impossible to find vanishing point
-    if detected_lines is None:
+    filtered_lines = filter_lines(detected_lines, 75, 70)
+    if filtered_lines is None:
         return image
     
-    intersection_points = intersect_lines(detected_lines) 
+    intersection_points = intersect_lines(filtered_lines) 
     filtered_points = filter_intersections(image, intersection_points)
 
     
+    #Finds centroid using a confidence interval method
+    centroid = compute_centroid(filtered_points)
     #intersections = intersect_lines()
-    image_with_lines = draw_lines(image, detected_lines)
-    image_with_points = draw_points(image_with_lines, filtered_points)
+    image_with_lines = draw_lines(image, filtered_lines)
+    image_with_points = draw_points(image_with_lines, [centroid])
     
     return image_with_points
