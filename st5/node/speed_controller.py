@@ -27,10 +27,10 @@ class SpeedController:
         self.odom = Odometry()
         self.odom_mutex = Lock()
 
-        self.hovering = False
+        self.moving = False
 
-        self.sub_hovering = rospy.Subscriber('/hovering', Bool,
-                                             self.update_hovering,
+        self.sub_moving = rospy.Subscriber('/moving', Bool,
+                                             self.update_moving,
                                              queue_size=1)
 
         self.sub_linear_x = rospy.Subscriber("linear_x", Float32,
@@ -106,8 +106,8 @@ class SpeedController:
         self.gains['linear_y']['Kd']=self.gains['linear_y']['Ku']*self.gains['linear_y']['Tu']/15
         self.gains['linear_y']['Ki']=2/5*self.gains['linear_y']['Ku']/self.gains['linear_y']['Tu']
 
-    def update_hovering(self, msg):
-        self.hovering = msg.data
+    def update_moving(self, msg):
+        self.moving = msg.data
 
     def publish_speed(self):
         self.pub_speed.publish(self.normalized_speed)
@@ -139,14 +139,20 @@ class SpeedController:
                 self.errors_last_update = self.errors['linear_x']['time']
 
             with self.speed_mutex:
-                if self.hovering:
-                    self.hover()
-                else:
-                    self.normalized_speed.linear.x = (self.gains['linear_x']['Kp']*self.errors['linear_x']['error'] + self.gains['linear_x']['Kd']*self.errors['linear_x']['D_error'] + self.gains['linear_x']['Ki']*self.errors['linear_x']['I_error'] ) / self.max_vertical_speed
-                    self.normalized_speed.linear.y = (self.gains['linear_y']['Kp']*self.errors['linear_y']['error'] + self.gains['linear_y']['Kd']*self.errors['linear_y']['D_error'] + self.gains['linear_y']['Ki']*self.errors['linear_y']['I_error'] ) / self.max_vertical_speed
+                if self.moving:
+                    self.normalized_speed.linear.x = (self.gains['linear_x']['Kp'] * self.errors['linear_x']['error'] +
+                                                      self.gains['linear_x']['Kd'] * self.errors['linear_x'][
+                                                          'D_error'] + self.gains['linear_x']['Ki'] *
+                                                      self.errors['linear_x']['I_error']) / self.max_vertical_speed
+                    self.normalized_speed.linear.y = (self.gains['linear_y']['Kp'] * self.errors['linear_y']['error'] +
+                                                      self.gains['linear_y']['Kd'] * self.errors['linear_y'][
+                                                          'D_error'] + self.gains['linear_y']['Ki'] *
+                                                      self.errors['linear_y']['I_error']) / self.max_vertical_speed
                     self.normalized_speed.linear.z = self.commanded_speed.linear.z / self.max_vertical_speed
                     self.normalized_speed.angular.z = self.commanded_speed.angular.z / self.max_rotation_speed
                     self.publish_speed()
+                else:
+                    self.hover()
 
             rospy.sleep(1 / self.frequency)  # we sleep for 100ms
 
