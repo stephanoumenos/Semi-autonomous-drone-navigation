@@ -13,7 +13,7 @@ class Command:
 
     def __init__(self):
         self.behaviors = ['Hover', 'MoveLeft', 'MoveForward', 'MoveBackwards', 'MoveUp', 'MoveDown', 'MoveRight',
-                          'RotateLeft', 'RotateRight', 'TakeOff', 'Land']
+                          'RotateLeft', 'RotateRight', 'TakeOff', 'Land', 'UTurn']
         self.commands = {
             'Stop': [(0, 'Hover')],
             'Dance': [(0, 'MoveLeft'), (0, 'MoveUp'), (2.5, 'MoveRight'), (3.2, 'Hover')],
@@ -27,7 +27,8 @@ class Command:
             'MoveDown': [(0, 'MoveDown')],
             'MoveUp': [(0, 'MoveUp')],
             'RotateLeft': [(0, 'RotateLeft')],
-            'RotateRight': [(0, 'RotateRight')]
+            'RotateRight': [(0, 'RotateRight')],
+            'UTurn': [(0, 'UTurn')]
         }
 
         self.command = rospy.Subscriber("/command", String, self.command_callback, queue_size=1)
