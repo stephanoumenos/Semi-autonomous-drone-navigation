@@ -123,6 +123,9 @@ class JoyMap():
     def rotate_right(self):
         self.publish_movement('RotateRight')
 
+    def u_turn(self):
+        self.publish_movement('UTurn')
+
     def publishMappedVelocities(self, data):
         """
         Used as a callback to publish the mapped velocities
@@ -155,6 +158,9 @@ class JoyMap():
 
         if self.B == 1:
             self.hover()
+
+        if self.UP_DIRECTIONAL == 1:
+            self.u_turn()
 
         assert (self.left_stick_horizontal is not None and
                 self.left_stick_vertical is not None and

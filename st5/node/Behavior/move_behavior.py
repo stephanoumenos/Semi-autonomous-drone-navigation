@@ -10,11 +10,13 @@ from std_msgs.msg import Float32, String
 
 class Move(Behavior):
 
-    def __init__(self, name, topic, rotational=False, backwards=False):
+    def __init__(self, name, topic, rotational=False, backwards=False, duration=1):
         super(Move, self).__init__(name)
-        self.TRANSLATIONAL_SPEED = 0.5
-        self.ROTATIONAL_SPEED = 50
-        self.MOVEMENT_DURATION = 1
+        max_vertical_speed = rospy.get_param('~SpeedSettingsMaxVerticalSpeedCurrent', 1)
+        max_rotation_speed = rospy.get_param('~SpeedSettingsMaxRotationSpeedCurrent', 100)
+        self.TRANSLATIONAL_SPEED = 0.5 * max_vertical_speed
+        self.ROTATIONAL_SPEED = 0.5 * max_rotation_speed
+        self.MOVEMENT_DURATION = duration
         if rotational:
             self.movement_speed = self.ROTATIONAL_SPEED
         else:

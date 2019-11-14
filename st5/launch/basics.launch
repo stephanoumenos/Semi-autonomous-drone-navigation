@@ -49,5 +49,7 @@
 
     <node name="rotate_right_behavior" pkg="st5drone" type="rotate_right.py" output="screen"/>
 
+    <node name="u_turn_behavior" pkg="st5drone" type="u_turn.py" output="screen"/>
+
     <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>
