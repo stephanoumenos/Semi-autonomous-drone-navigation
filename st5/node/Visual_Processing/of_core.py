@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import scipy.signal 
 
 def coordinate_transform(y, hmin, hmax, ymin, ymax):
     deltah = hmax - hmin
@@ -38,15 +39,25 @@ def draw_function(image, y, hmin, hmax, ymin, ymax, color =[255,0,0], thickness=
 
     return img_with_lines
 
+def median_filter(values, medfilt_size):
+    filtered = scipy.signal.medfilt(values, medfilt_size) # median filter
+    filtered = map(int, filtered)
 
+    return filtered
+
+def shift(curY, prevY):
+    print(np.convolve(curY, prevY))
 def draw(image, previous_y, now):
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     y_values = gray_image[127]
     
+    y_values = median_filter(y_values, 11)
 
     current_overlay = draw_function(image, y_values, 150, 300, 0, 255)
     if len(previous_y) == 0:
         return current_overlay, y_values
     
+    shift(y_values, previous_y)
+
     overlayed_image = draw_function(current_overlay, previous_y, 150, 300, 0, 255, color=[0,255,0])
     return overlayed_image, y_values 
