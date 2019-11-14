@@ -51,5 +51,9 @@
 
     <node name="u_turn_behavior" pkg="st5drone" type="u_turn.py" output="screen"/>
 
+    <node name="align_corridor_behavior" pkg="st5drone" type="align_corridor.py" output="screen"/>
+
+    <node name="center_corridor_behavior" pkg="st5drone" type="center_corridor.py" output="screen"/>
+
     <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>

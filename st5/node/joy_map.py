@@ -12,6 +12,9 @@ BUTTONS_SIZE = 11
 
 
 class JoyMap():
+    """
+    This class works mapping the joystick inputs to the desired actions
+    """
 
     def __init__(self):
         #self.SCALE_LINEAR = rospy.get_param('~scale_linear', 0.26)
@@ -46,6 +49,9 @@ class JoyMap():
 
         self.UP_DIRECTIONAL = None
 
+        self.L1 = None
+        self.R1 = None
+
         self.RT = None
         self.left_stick_horizontal = None
         self.left_stick_vertical = None
@@ -67,6 +73,12 @@ class JoyMap():
 
 
     def mapper(self, axesArray, buttonArray):
+        """
+        Maps the buttons on the joystick to the class variables as needed
+        :param axesArray: Analogic buttons
+        :param buttonArray: Discrete buttons
+        :return: Set class variables
+        """
 
         # Landing / take-off
         self.RT = self.axisToPercentage(axesArray[5])
@@ -78,6 +90,9 @@ class JoyMap():
         self.B = buttonArray[1]
 
         self.UP_DIRECTIONAL = axesArray[7]
+
+        self.L1 = buttonArray[4]
+        self.R1 = buttonArray[5]
 
         # Left Stick
         self.left_stick_horizontal = axesArray[0]
@@ -126,6 +141,12 @@ class JoyMap():
     def u_turn(self):
         self.publish_movement('UTurn')
 
+    def align_corridor(self):
+        self.publish_movement('AlignCorridor')
+
+    def center_corridor(self):
+        self.publish_movement('CenterCorridor')
+
     def publishMappedVelocities(self, data):
         """
         Used as a callback to publish the mapped velocities
@@ -161,6 +182,12 @@ class JoyMap():
 
         if self.UP_DIRECTIONAL == 1:
             self.u_turn()
+
+        if self.L1 == 1:
+            self.align_corridor()
+
+        if self.R1 == 1:
+            self.center_corridor()
 
         assert (self.left_stick_horizontal is not None and
                 self.left_stick_vertical is not None and
