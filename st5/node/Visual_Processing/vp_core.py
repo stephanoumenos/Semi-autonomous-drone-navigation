@@ -99,8 +99,13 @@ def intersect_lines(lines):
 
     return intersection_points
 
-
-
+# Filters intersection to inside screen
+def filter_intersections(image, intersections):
+    filtered_points = []
+    for point in intersections:
+        if image.shape[1] > point[0] >= 0 and image.shape[0] > point[1] >= 0:
+            filtered_points.append(point)
+    return filtered_points
 
 def draw(image, now):
     # Takes a image and returns it overlayed with detected lines and vanishing point
@@ -114,10 +119,11 @@ def draw(image, now):
         return image
     
     intersection_points = intersect_lines(detected_lines) 
+    filtered_points = filter_intersections(image, intersection_points)
 
     
     #intersections = intersect_lines()
     image_with_lines = draw_lines(image, detected_lines)
-    image_with_points = draw_points(image_with_lines, intersection_points)
+    image_with_points = draw_points(image_with_lines, filtered_points)
     
     return image_with_points
