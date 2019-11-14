@@ -32,7 +32,7 @@ class Move(Behavior):
     def stop(self):
         self.pub.publish(0)
         hover_msg = String()
-        hover_msg.data = "hover"
+        hover_msg.data = "Hover"
         self.pub_command.publish(hover_msg)
 
     def on_status_on(self):
