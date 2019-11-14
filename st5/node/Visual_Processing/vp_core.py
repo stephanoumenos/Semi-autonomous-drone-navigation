@@ -139,11 +139,13 @@ def compute_centroid(points):
     return centroid
 
 
-def filter_lines(lines, angle, min_length):
+def filter_lines(lines, min_angle, max_angle, min_length):
     non_vertical_lines = []
 
     if lines is None:
         return None
+    elif isinstance(lines[0], float):
+        lines = [lines]
 
     for line in lines:
         x1, y1, x2, y2 = line
@@ -152,11 +154,9 @@ def filter_lines(lines, angle, min_length):
 
         line_angle = np.rad2deg(abs(np.arctan2(delta_y, delta_x)))
         if line_angle > 90:
-            line_angle = 180 - line_angle
+            line_angle = 180 - line_angle   
 
-        print(line_angle)
-
-        if line_angle < angle and line_length(line) > min_length:
+        if min_angle < line_angle < max_angle and line_length(line) > min_length:
             non_vertical_lines.append([x1, y1, x2, y2])
 
     
@@ -165,6 +165,22 @@ def line_length(line):
     x1, y1, x2, y2 = line
     return math.sqrt((x2-x1)**2 + (y2-y1)**2)
     
+def remove_lines_with_vp(lines, vanishing_point, cutoff_dist):
+    p_point = np.asarray(vanishing_point)
+
+    lines_after_vp = []
+    for line in lines:
+        x1, y1, x2, y2 = line
+        p1_line = np.array([x1,y1])
+        p2_line = np.array([x2,y2])
+
+        dist = np.linalg.norm(np.cross(p2_line-p1_line, p1_line-p_point))/np.linalg.norm(p2_line-p1_line)
+        if dist < cutoff_dist:
+            lines_after_vp.append(line)
+    
+    return lines_after_vp
+        
+
 
 def draw(image, now):
     # Takes a image and returns it overlayed with detected lines and vanishing point
@@ -174,18 +190,20 @@ def draw(image, now):
     detected_lines = lsd_detector(gray_image)
     # If no lines are found, we can return the empty image
         # Impossible to find vanishing point
-    filtered_lines = filter_lines(detected_lines, 75, 70)
+    filtered_lines = filter_lines(detected_lines, 10, 80, 50)
     if filtered_lines is None:
         return image
     
     intersection_points = intersect_lines(filtered_lines) 
     filtered_points = filter_intersections(image, intersection_points)
-
     
     #Finds centroid using a confidence interval method
-    centroid = compute_centroid(filtered_points)
+    vanishing_point = compute_centroid(filtered_points)
+
+    lines_after_vp = remove_lines_with_vp(filtered_lines, vanishing_point, 10)
+
     #intersections = intersect_lines()
-    image_with_lines = draw_lines(image, filtered_lines)
-    image_with_points = draw_points(image_with_lines, [centroid])
+    image_with_lines = draw_lines(image, lines_after_vp)
+    image_with_points = draw_points(image_with_lines, [vanishing_point])
     
     return image_with_points
