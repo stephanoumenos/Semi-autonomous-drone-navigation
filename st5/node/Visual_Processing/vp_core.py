@@ -20,7 +20,7 @@ def draw_lines(img, lines, color = [255,0,0], thickness = 3):
 
     # Draws the lines on the "mask"
     for line in lines:
-        x1, y1, x2, y2 = line[:4]
+        x1, y1, x2, y2 = map(int, line[:4])
         cv2.line(line_img, (x1,y1), (x2, y2), color, thickness)
 
     # Integrates it with original image
@@ -32,22 +32,8 @@ def lsd_detector(image):
     # Returns the detected lines for a given image
     lsd_detector          = cv2.createLineSegmentDetector()
     lines, _, _, _ = lsd_detector.detect(image)
-
-    # Avoids the writing of each line as a 2D table
-    # TODO: Possible solution without copying list
-    flattened_lines = []
-    for line in lines:
-        flattened_lines.append(np.ravel(line))
-    #for i, line in enumerate(lines):
-        # print("ORIGINAL LINE: ")
-        # print(line)
-        # print("RAVEL: ")
-        # print(np.ravel(line))
-        # lines[i] = np.ravel(line)
-        # print("FINAL RESULT")
-        # print(lines[i])
-
-    return flattened_lines
+    
+    return np.squeeze(lines).tolist()
 
 def draw(image, now):
     # Takes a image and returns it overlayed with detected lines and vanishing point
