@@ -8,6 +8,7 @@ from std_msgs.msg import Float32, Bool
 
 from multiprocessing import Lock
 
+CORRIDOR_SIZE = 1.43  # m
 
 class CenterCorridor(Behavior):
 
@@ -32,10 +33,12 @@ class CenterCorridor(Behavior):
         if left_angle == right_angle:
             pass
         elif left_angle > right_angle:  # Drone is closer to the left wall
-            self.move_a_bit('right')
+            speed = (left_angle - right_angle) * (CORRIDOR_SIZE/2) / 90
+            self.move_a_bit('right', speed)
             self.publish_movement(True)
         else:
-            self.move_a_bit('left')
+            speed = (right_angle - left_angle) * (CORRIDOR_SIZE/2) / 90
+            self.move_a_bit('left', speed)
             self.publish_movement(True)
 
         rospy.sleep(self.maneuver_time)
@@ -54,7 +57,7 @@ class CenterCorridor(Behavior):
         with self.vp_mutex:
             self.last_vp = vp
 
-    def move_a_bit(self, direction):
+    def move_a_bit(self, direction, speed):
         self.pub_linear_y.publish(self.speed if direction == 'right' else -self.speed)
 
 
