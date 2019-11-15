@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 import sys
+import random
 
 def draw_lines(img, lines, color = [255,0,0], thickness = 3):
     # Draws the lines described into lines over the given image
@@ -139,32 +140,42 @@ def compute_centroid(points):
     return centroid
 
 
-def filter_lines(lines, min_angle, max_angle, min_length):
+def compute_line_angle(line):
+    x1, y1, x2, y2 = line
+    delta_x = x2 - x1
+    delta_y = y2 - y1
+    return np.rad2deg(abs(np.arctan2(delta_y, delta_x)))
+
+
+def filter_lines(lines, min_angle, max_angle, min_length, absolute=True):
+    """
+    Filters the lines according to the parameters. If absolute is true,
+    it will convert angles higher than 90º to between 0 and 90º
+    """
     non_vertical_lines = []
 
-    if lines is None:
+    if lines is None or lines == []:
         return None
     elif isinstance(lines[0], float):
         lines = [lines]
 
     for line in lines:
-        x1, y1, x2, y2 = line
-        delta_x = x2 - x1
-        delta_y = y2 - y1
-
-        line_angle = np.rad2deg(abs(np.arctan2(delta_y, delta_x)))
-        if line_angle > 90:
+        line_angle = compute_line_angle(line)
+        if line_angle > 90 and absolute:
             line_angle = 180 - line_angle   
 
         if min_angle < line_angle < max_angle and line_length(line) > min_length:
-            non_vertical_lines.append([x1, y1, x2, y2])
+            non_vertical_lines.append(line)
 
     
     return non_vertical_lines
+
+
 def line_length(line):
     x1, y1, x2, y2 = line
     return math.sqrt((x2-x1)**2 + (y2-y1)**2)
-    
+
+
 def remove_lines_with_vp(lines, vanishing_point, cutoff_dist):
     p_point = np.asarray(vanishing_point)
 
@@ -180,7 +191,6 @@ def remove_lines_with_vp(lines, vanishing_point, cutoff_dist):
     
     return lines_after_vp
         
-
 
 def draw(image, now):
     # Takes a image and returns it overlayed with detected lines and vanishing point
@@ -202,8 +212,20 @@ def draw(image, now):
 
     lines_after_vp = remove_lines_with_vp(filtered_lines, vanishing_point, 10)
 
+    left_lines = filter_lines(lines_after_vp, 0, 90, 0, absolute=False)
+    if left_lines:
+        random_angle_left = compute_line_angle(random.choice(left_lines))
+    else:
+        random_angle_left = None
+
+    right_lines = filter_lines(lines_after_vp, 90, 180, 0, absolute=False)
+    if right_lines:
+        random_angle_right = compute_line_angle(random.choice(right_lines))
+    else:
+        random_angle_right = None
+
     #intersections = intersect_lines()
     image_with_lines = draw_lines(image, lines_after_vp)
     image_with_points = draw_points(image_with_lines, [vanishing_point])
     
-    return image_with_points
+    return image_with_points, vanishing_point, random_angle_left, random_angle_right

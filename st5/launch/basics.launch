@@ -21,6 +21,10 @@
     <node pkg="st5drone" name="speed_controller" type="speed_controller.py">
     </node>
 
+    <node name="visual_processor" pkg="st5drone" type="vp_node.py" output="screen">
+        <remap from="image_in/compressed" to="bebop/image_raw/compressed"/>
+    </node>
+
     <!-- BEHAVIORS -->
 
     <node pkg="st5drone" type="status_viewer.py" name="status_viewer" output="screen"/>
@@ -50,6 +54,10 @@
     <node name="rotate_right_behavior" pkg="st5drone" type="rotate_right.py" output="screen"/>
 
     <node name="u_turn_behavior" pkg="st5drone" type="u_turn.py" output="screen"/>
+
+    <node name="align_corridor_behavior" pkg="st5drone" type="align_corridor.py" output="screen"/>
+
+    <node name="center_corridor_behavior" pkg="st5drone" type="center_corridor.py" output="screen"/>
 
     <!-- rqt_image_view /bebop/image_raw /image_out/compressed -->
 </launch>
