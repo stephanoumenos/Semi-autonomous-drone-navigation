@@ -33,11 +33,15 @@ class CenterCorridor(Behavior):
 
         if left_angle == right_angle:
             pass
-        elif left_angle > right_angle:  # Drone is closer to the left wall
+        elif left_angle > 180 - right_angle:  # Drone is closer to the left wall
+            # Normalize right angle
+            right_angle = 180 - right_angle
             speed = (left_angle - right_angle) * (CORRIDOR_SIZE/2) / 90
             self.move_a_bit('right', speed)
             self.publish_movement(True)
         else:
+            # Normalize right angle
+            right_angle = 180 - right_angle
             speed = (right_angle - left_angle) * (CORRIDOR_SIZE/2) / 90
             self.move_a_bit('left', speed)
             self.publish_movement(True)
