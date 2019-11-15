@@ -147,7 +147,11 @@ def compute_line_angle(line):
     return np.rad2deg(abs(np.arctan2(delta_y, delta_x)))
 
 
-def filter_lines(lines, min_angle, max_angle, min_length):
+def filter_lines(lines, min_angle, max_angle, min_length, absolute=True):
+    """
+    Filters the lines according to the parameters. If absolute is true,
+    it will convert angles higher than 90º to between 0 and 90º
+    """
     non_vertical_lines = []
 
     if lines is None or lines == []:
@@ -157,7 +161,7 @@ def filter_lines(lines, min_angle, max_angle, min_length):
 
     for line in lines:
         line_angle = compute_line_angle(line)
-        if line_angle > 90:
+        if line_angle > 90 and absolute:
             line_angle = 180 - line_angle   
 
         if min_angle < line_angle < max_angle and line_length(line) > min_length:
@@ -208,13 +212,13 @@ def draw(image, now):
 
     lines_after_vp = remove_lines_with_vp(filtered_lines, vanishing_point, 10)
 
-    left_lines = filter_lines(lines_after_vp, 0, 90, 0)
+    left_lines = filter_lines(lines_after_vp, 0, 90, 0, absolute=False)
     if left_lines:
         random_angle_left = compute_line_angle(random.choice(left_lines))
     else:
         random_angle_left = None
 
-    right_lines = filter_lines(lines_after_vp, 90, 180, 0)
+    right_lines = filter_lines(lines_after_vp, 90, 180, 0, absolute=False)
     if right_lines:
         random_angle_right = compute_line_angle(random.choice(right_lines))
     else:
