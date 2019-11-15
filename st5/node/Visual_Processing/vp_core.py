@@ -150,7 +150,7 @@ def compute_line_angle(line):
 def filter_lines(lines, min_angle, max_angle, min_length):
     non_vertical_lines = []
 
-    if lines is None:
+    if lines is None or lines == []:
         return None
     elif isinstance(lines[0], float):
         lines = [lines]
@@ -209,10 +209,16 @@ def draw(image, now):
     lines_after_vp = remove_lines_with_vp(filtered_lines, vanishing_point, 10)
 
     left_lines = filter_lines(lines_after_vp, 0, 90, 0)
-    random_angle_left = compute_line_angle(random.choice(left_lines))
+    if left_lines:
+        random_angle_left = compute_line_angle(random.choice(left_lines))
+    else:
+        random_angle_left = None
 
     right_lines = filter_lines(lines_after_vp, 90, 180, 0)
-    random_angle_right = compute_line_angle(random.choice(right_lines))
+    if right_lines:
+        random_angle_right = compute_line_angle(random.choice(right_lines))
+    else:
+        random_angle_right = None
 
     #intersections = intersect_lines()
     image_with_lines = draw_lines(image, lines_after_vp)

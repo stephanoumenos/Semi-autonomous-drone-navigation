@@ -41,8 +41,8 @@ class Test:
         msg_vp.y                  = vanishing_point[1]
         msg_vp.res_x              = image.shape[1]
         msg_vp.res_y              = image.shape[0]
-        msg_vp.random_angle_left  = random_angle_left
-        msg_vp.random_angle_right = random_angle_right
+        msg_vp.random_angle_left  = random_angle_left if random_angle_left else 0
+        msg_vp.random_angle_right = random_angle_right if random_angle_right else 0
         self.pub_vp.publish(msg_vp)
 
 

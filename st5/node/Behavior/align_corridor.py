@@ -27,10 +27,13 @@ class AlignCorridor(Behavior):
 
         self.publish_movement(True)
         with self.vp_mutex:
-            distance_from_center = abs(self.last_vp.x - self.last_vp.res_x/2)
+            distance_from_center = (self.last_vp.x - self.last_vp.res_x/2)
             rotation_angle = self.FOV * distance_from_center/self.last_vp.res_x
         maneuver_time = rotation_angle/self.speed
-        self.pub_angular_z.publish(self.speed)
+        if distance_from_center > 0:
+            self.pub_angular_z.publish(-self.speed)
+        else:
+            self.pub_angular_z.publish(self.speed)
         rospy.sleep(maneuver_time)
         self.pub_angular_z.publish(0)
         self.set_status(False)

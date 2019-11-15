@@ -18,9 +18,9 @@ class CenterCorridor(Behavior):
         self.speed = 0.08  # 8 cm
         self.last_vp = None
         self.vp_mutex = Lock()
-        self.sub_vp = rospy.Subscriber("vanish_point", VanishPoint, self.on_vp_received, queue_size=0)
+        self.sub_vp = rospy.Subscriber("vanish_point", VanishPoint, self.on_vp_received, queue_size=1)
         self.pub_linear_y = rospy.Publisher('/linear_y', Float32, queue_size=50)
-        self.pub_moving = rospy.Publisher('/moving', Bool, queue_size=0)
+        self.pub_moving = rospy.Publisher('/moving', Bool, queue_size=1)
 
     def on_status_on(self):
         if self.last_vp is None:
@@ -29,6 +29,7 @@ class CenterCorridor(Behavior):
         with self.vp_mutex:
             left_angle = self.last_vp.random_angle_left
             right_angle = self.last_vp.random_angle_right
+            print('left_angle: ', left_angle, 'right_angle: ', right_angle)
 
         if left_angle == right_angle:
             pass
@@ -58,7 +59,7 @@ class CenterCorridor(Behavior):
             self.last_vp = vp
 
     def move_a_bit(self, direction, speed):
-        self.pub_linear_y.publish(self.speed if direction == 'right' else -self.speed)
+        self.pub_linear_y.publish(speed if direction == 'right' else -speed)
 
 
 if __name__ == '__main__':
