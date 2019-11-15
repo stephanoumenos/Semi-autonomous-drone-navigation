@@ -214,13 +214,15 @@ def draw(image, now):
 
     left_lines = filter_lines(lines_after_vp, 0, 90, 0, absolute=False)
     if left_lines:
-        random_angle_left = compute_line_angle(random.choice(left_lines))
+        left_angles = map(compute_line_angle, left_lines)
+        random_angle_left = sum(left_angles)/len(left_angles)
     else:
         random_angle_left = None
 
     right_lines = filter_lines(lines_after_vp, 90, 180, 0, absolute=False)
     if right_lines:
-        random_angle_right = compute_line_angle(random.choice(right_lines))
+        right_angles = map(compute_line_angle, right_lines)
+        random_angle_right = sum(right_angles)/len(right_angles)
     else:
         random_angle_right = None
 
