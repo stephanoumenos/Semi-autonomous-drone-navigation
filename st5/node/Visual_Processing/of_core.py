@@ -45,19 +45,25 @@ def median_filter(values, medfilt_size):
 
     return filtered
 
-def shift(curY, prevY):
-    print(np.convolve(curY, prevY))
+def shift(curY, prevY, windowSize):
+    # NOT IMPLEMENTED
+    pass
+
 def draw(image, previous_y, now):
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     y_values = gray_image[127]
     
     y_values = median_filter(y_values, 11)
-
+    
     current_overlay = draw_function(image, y_values, 150, 300, 0, 255)
     if len(previous_y) == 0:
         return current_overlay, y_values
     
-    shift(y_values, previous_y)
 
+    # shift_window_size = 9
+    # shift_vector = shift(y_values, previous_y, shift_window_size)
+
+    #overlayed_image = draw_function(current_overlay, shift_vector, 150, 200, 0, shift_window_size, color=[0,255,0])
     overlayed_image = draw_function(current_overlay, previous_y, 150, 300, 0, 255, color=[0,255,0])
+    
     return overlayed_image, y_values 
