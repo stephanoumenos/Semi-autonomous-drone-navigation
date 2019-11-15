@@ -150,7 +150,7 @@ def compute_line_angle(line):
 def filter_lines(lines, min_angle, max_angle, min_length, absolute=True):
     """
     Filters the lines according to the parameters. If absolute is true,
-    it will convert angles higher than 90º to between 0 and 90º
+    it will convert angles higher than 90 to between 0 and 90
     """
     non_vertical_lines = []
 
