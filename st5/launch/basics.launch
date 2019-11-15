@@ -21,6 +21,10 @@
     <node pkg="st5drone" name="speed_controller" type="speed_controller.py">
     </node>
 
+    <node name="visual_processor" pkg="st5drone" type="vp_node.py" output="screen">
+        <remap from="image_in/compressed" to="bebop/image_raw/compressed"/>
+    </node>
+
     <!-- BEHAVIORS -->
 
     <node pkg="st5drone" type="status_viewer.py" name="status_viewer" output="screen"/>
