@@ -9,7 +9,11 @@ from st5drone.msg import VanishPoint
 
 import vp_core as vp
 
-class Test:
+class VpNode:
+    """
+    Receives the drone image
+    Publishes the vanish point and the lines angles on /vanish_point
+    """
     
     def __init__(self):
         self.sub_image = rospy.Subscriber("image_in/compressed", CompressedImage, self.on_image, queue_size = 1, buff_size=2 ** 22)
@@ -21,7 +25,7 @@ class Test:
         frame         = cv2.imdecode(compressed_in, cv2.IMREAD_COLOR)
 
         # if time is required in your cumputation, consider the current time
-        # as the one recorded in the message timestamps. This enables a coherent
+        # as the one recorded in the message timestamps. Tst5/node/Visual_Processing/vp_node.pyhis enables a coherent
         # time sequence when the images come from a ros bag, since ros bag execution
         # can be paused, run step by step, ...
         now = msg.header.stamp
@@ -47,6 +51,6 @@ class Test:
 
 
 if __name__ == '__main__':
-    rospy.init_node('test')
-    test = Test()
+    rospy.init_node('VpNode')
+    test = VpNode()
     rospy.spin()
